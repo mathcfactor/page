@@ -7,43 +7,29 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
   
 <style>
-body {
-  background: #ffffff;
-  margin: 0;
-}
+body {background: #ffffff;margin: 0;}
 #sliders input[type="range"] {-webkit-appearance: none;appearance: none;height: 4px;background: #dddddd;border-radius: 2px;}
 #sliders input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
   .tab { font-family: 'Playfair Display', serif; }
   .checkmark { font-size: 22px; }
-  
 @media (max-width: 450px) {
-  #symbolic { font-size: 17px !important; line-height: 1.2 !important; }
-  #display { font-size: 17px !important; line-height: 1.6 !important; }
-.tab { font-size: 13px !important; font-family: 'Playfair Display', serif; }
+#symbolic { font-size: 17px !important; line-height: 1.2 !important; }
+#display { font-size: 17px !important; line-height: 1.6 !important; }
+  .tab { font-size: 13px !important; font-family: 'Playfair Display', serif; }
   input[type="range"] { height: 4px; }
-  #sliders input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 6px; height: 6px; border-radius: 50%; }
+#sliders input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 6px; height: 6px; border-radius: 50%; }
   
-  #prompt { font-size: 14px !important; }
-.choice-btn { font-size: 13px !important; padding: 8px 12px !important; }
-  #practiceContainer p { font-size: 12px !important; }
-  #practiceContainer > p[style*="Playfair"] { font-size: 13px !important; }
-  #reveal-btn, #new-btn { font-size: 11px !important; padding: 8px !important; }
-  #explanation { font-size: 11px !important; padding: 0.8rem 0.9rem !important; }
-  #practiceIntro { font-size: 12px !important; }
-  .checkmark { font-size: 16px !important; }
-}
-  
-  
-#container {
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-}  
+#prompt { font-size: 14px !important; }
+  .choice-btn { font-size: 13px !important; padding: 8px 12px !important; }
+#practiceContainer p { font-size: 12px !important; }
+#practiceContainer > p[style*="Playfair"] { font-size: 13px !important; }
+#reveal-btn, #new-btn { font-size: 11px !important; padding: 8px !important; }
+#explanation { font-size: 11px !important; padding: 0.8rem 0.9rem !important; }
+#practiceIntro { font-size: 12px !important; }
+  .checkmark { font-size: 16px !important; }}
+#container {margin-left: 0.5rem;margin-right: 0.5rem;} 
 @media (min-width: 451px) {
-  #container {
-    max-width: 500px;
-    margin: 0 auto;
-  }
-}
+#container {max-width: 500px;margin: 0 auto;}}
 label { font-size: 11px !important; }
 #display .katex { color: #002C64; }
 </style></head>
@@ -52,33 +38,29 @@ label { font-size: 11px !important; }
 <div style="padding: 0 0 1rem 0; margin: 0 0.5rem 0.5rem 0.5rem; border-bottom-left-radius: 18px; border-bottom-right-radius: 18px; background: 
 #f9f9f9;"> 
 
-  <!-- Screen 1 -->
+<!-- Screen 1 -->
 <div id="tabs" style="display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 1rem; margin-left: 0.8rem; margin-right: 0.8rem; scrollbar-width: none;"></div>
 <div style="text-align: center; font-size: 25px; margin-bottom: .3rem; margin-top: .1rem; color: #002C64;" id="symbolic"></div>
 <hr style="border: none; border-top: 1px solid #eeeeee; margin: .5rem 0 1.5rem 0;">
 <div style="text-align: center; font-size: 25px; font-weight: 500; margin-bottom: 2.5rem; line-height: 2;" id="display"></div>
 <div id="sliders" style="display: grid; grid-template-columns: 1fr; gap: 1rem; max-width: 250px; margin: 0 auto; padding-left: 1rem; padding-right: 1rem;"></div>
 <p style="text-align: right; font-size: 11px; color: #bbbbbb; margin: 1rem 0 1rem 0; max-width: 400px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem;">Adjust the sliders to explore patterns</p>
+</div>
+</div>
 
-    </div>
-  </div>
-
-  <!-- Screen 2 -->
-  <div id="videoSection" style="display: none; margin-top: 1rem;">
-    </div>
+<!-- Screen 2 -->
+<div id="videoSection" style="display: none; margin-top: 1rem;"></div>
 <div id="container" style="position:relative; width:calc(100% - 1rem); border-radius: 18px; overflow: hidden; background: #f9f9f9;">
 <video id="vid" playsinline preload="none" style="width:100%; display:block; background: #f9f9f9;"></video>
-  
-  <div id="controls" style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-top:1px solid #ddd;">
-        <button id="playBtn" style="background:transparent; border:none; width:36px; height:36px; cursor:pointer; flex-shrink:0; appearance:none; -webkit-appearance:none; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center;">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="#999999"><polygon points="5,3 19,12 5,21"/></svg>
-        </button>
+<div id="controls" style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-top:1px solid #ddd;">
+<button id="playBtn" style="background:transparent; border:none; width:36px; height:36px; cursor:pointer; flex-shrink:0; appearance:none; -webkit-appearance:none; -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center;">
+<svg viewBox="0 0 24 24" width="16" height="16" fill="#999999"><polygon points="5,3 19,12 5,21"/></svg>
+</button>
 <input id="scrub" type="range" value="0" min="0" step="0.1" style="flex:1; accent-color:#cccccc; cursor:pointer; -webkit-appearance: none; appearance: none; height: 4px; background: #dddddd; border-radius: 2px;">
-        <span id="time" style="font-size:10px; color:#cccccc; flex-shrink:0; min-width:80px; text-align:right;">0:00 / 0:00</span>
-      </div>
-    </div>
-  </div>
-
+<span id="time" style="font-size:10px; color:#cccccc; flex-shrink:0; min-width:80px; text-align:right;">0:00 / 0:00</span>
+</div>
+</div>
+</div>
 </div>
 
 <p id="practiceIntro" style="text-align: center; font-size: 15px; color: #555555; margin: 1rem 0.8rem;"></p>
@@ -87,14 +69,14 @@ label { font-size: 11px !important; }
 <div id="practiceContainer" style="padding: 1.5rem 1rem; margin: 1rem 0.5rem 0.5rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
 <!-- <p style="font-family: 'Playfair Display', serif; font-size: 16px; color: #999999; margin: 0 0 .8rem 0; text-align: right;">Try it yourself</p> -->
 <div id="prompt" style="text-align: left; font-size: 22px; font-weight: 500; color: #002C64; margin-bottom: 1.5rem; line-height: 1.5;">Loading...</div>
-  <div id="choices" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: .5rem;"></div>
-  <p style="text-align: right; font-size: 11px; color: #bbbbbb; margin: 0 0 1rem 0;">Level <span id="level">1</span></p>
-  <p id="feedback" style="text-align: center; font-size: 13px; margin: 0 0 1rem 0; min-height: 18px;"></p>
-  <div style="display: flex; gap: 8px;">
-    <button id="reveal-btn" style="flex:1; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#999999; font-size:13px;">Reveal explanation</button>
-    <button id="new-btn" style="flex:1; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#999999; font-size:13px;">Try another</button>
-  </div>
-  <div id="explanation" style="display: none; margin-top: 1rem; padding: 1rem 1.1rem; background: #ffffff; border-radius: 12px; font-size: 13px; color: #555555; line-height: 1.5;"></div>
+<div id="choices" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: .5rem;"></div>
+<p style="text-align: right; font-size: 11px; color: #bbbbbb; margin: 0 0 1rem 0;">Level <span id="level">1</span></p>
+<p id="feedback" style="text-align: center; font-size: 13px; margin: 0 0 1rem 0; min-height: 18px;"></p>
+<div style="display: flex; gap: 8px;">
+<button id="reveal-btn" style="flex:1; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#999999; font-size:13px;">Reveal explanation</button>
+<button id="new-btn" style="flex:1; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#999999; font-size:13px;">Try another</button>
+</div>
+<div id="explanation" style="display: none; margin-top: 1rem; padding: 1rem 1.1rem; background: #ffffff; border-radius: 12px; font-size: 13px; color: #555555; line-height: 1.5;"></div>
 </div>
 
 <script>
@@ -122,7 +104,6 @@ function fmt(s) {
   const m = Math.floor(s / 60);
   const sec = Math.floor(s % 60);
   return m + ':' + (sec < 10 ? '0' : '') + sec;}
-
 playBtn.addEventListener('click', function() {
   if (vid.paused) { vid.play(); playBtn.innerHTML = svgPause; }
   else { vid.pause(); playBtn.innerHTML = svgPlay; }});
@@ -130,7 +111,6 @@ vid.addEventListener('timeupdate', function() {
   if (vid.duration) {
     scrub.value = (vid.currentTime / vid.duration) * 100;
     time.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration);}});
-
 scrub.addEventListener('input', function() {
   if (vid.duration) vid.currentTime = (scrub.value / 100) * vid.duration;});
 vid.addEventListener('ended', function() { playBtn.innerHTML = svgPlay; });
@@ -142,16 +122,12 @@ function loadVideo(url) {
     vid.load();
     playBtn.innerHTML = svgPlay;
     scrub.value = 0;
-    time.textContent = '0:00 / 0:00';
-  } else {
+    time.textContent = '0:00 / 0:00';} else {
     videoSection.style.display = 'none';
-    vid.src = '';
-  }
-}
+    vid.src = '';}}
 
 function renderKatex(id, latex) {
-  katex.render(latex, document.getElementById(id), { throwOnError: false, displayMode: true });
-}
+  katex.render(latex, document.getElementById(id), { throwOnError: false, displayMode: true });}
 
 function colorize(latex) {
   let result = latex;
@@ -159,51 +135,40 @@ function colorize(latex) {
     const varName = s.name || s.compute;
     if (!varName) return;
     const regex = new RegExp(`\\b${varName}\\b`, 'g');
-    result = result.replace(regex, `{\\color{${s.color}} ${varName}}`);
-  });
-  return result;
-}
+    result = result.replace(regex, `{\\color{${s.color}} ${varName}}`);});
+  return result;}
 
 function buildLive(template, values) {
   let result = template;
   sliderConfig.filter(s => s.name).forEach(s => {
     const regex = new RegExp(`\\{${s.name}\\}`, 'g');
-    result = result.replace(regex, `{\\color{${s.color}} ${values[s.name]}}`);
-  });
+    result = result.replace(regex, `{\\color{${s.color}} ${values[s.name]}}`);});
   sliderConfig.filter(s => s.compute).forEach(s => {
     const value = eval(s.expression.replace(/[a-z]/g, m => values[m] ?? m));
     const regex = new RegExp(`\\{${s.compute}\\}`, 'g');
-    result = result.replace(regex, `{\\color{${s.color}} ${value}}`);
-  });
-  return result;
-}
+    result = result.replace(regex, `{\\color{${s.color}} ${value}}`);});
+  return result;}
 
 function getValues() {
   const values = {};
   sliderEls.forEach((el, i) => {
-    values[sliderConfig[i].name] = parseInt(el.value);
-  });
-  return values;
-}
+    values[sliderConfig[i].name] = parseInt(el.value);});
+  return values;}
 
 function update() {
   const values = getValues();
   sliderEls.forEach((el, i) => {
     const cfg = sliderConfig[i];
-    document.getElementById(`out-${cfg.name}`).textContent = values[cfg.name];
-  });
-  renderKatex('display', buildLive(identities[current].liveLatex, values));
-}
+    document.getElementById(`out-${cfg.name}`).textContent = values[cfg.name];});
+  renderKatex('display', buildLive(identities[current].liveLatex, values));}
 
 function buildSliders(config) {
   sliderConfig = config;
   const container = document.getElementById('sliders');
   container.innerHTML = '';
   sliderEls = [];
-
   const old = document.getElementById('mobile-thumb-styles');
   if (old) old.remove();
-
   const isMob = isMobile();
   if (isMob) {
     const style = document.createElement('style');
@@ -212,34 +177,29 @@ function buildSliders(config) {
   	#slider-${cfg.name} {
     -webkit-appearance: none;
     appearance: none;
-    background: transparent;
-  }
+    background: transparent;}
   	#slider-${cfg.name}::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 12px;
     height: 12px;
     border-radius: 50%;
     background: ${cfg.color};
-    margin-top: -2px
-  }
+    margin-top: -2px}
   #slider-${cfg.name}::-webkit-slider-runnable-track {
     -webkit-appearance: none;
     height: 2px;
     background: #dddddd;
-    border-radius: 2px;
-  }
+    border-radius: 2px;}
 `).join('');
-    document.head.appendChild(style);
-} else {
+    document.head.appendChild(style);} 
+    else {
     const style = document.createElement('style');
     style.id = 'desktop-thumb-styles';
     style.textContent = config.filter(s => s.name).map(cfg => `
 	#slider-${cfg.name}::-webkit-slider-thumb {
-    background: ${cfg.color};
-  }
+    background: ${cfg.color};}
 `).join('');
-    document.head.appendChild(style);    
-  }
+    document.head.appendChild(style);}
 
   config.filter(s => s.name).forEach(cfg => {
     const wrapper = document.createElement('div');
@@ -260,15 +220,13 @@ function buildSliders(config) {
     wrapper.appendChild(label);
     wrapper.appendChild(input);
     container.appendChild(wrapper);
-    sliderEls.push(input);
-  });
-}
+    sliderEls.push(input);});}
+
 function selectIdentity(id) {
   current = id;
   document.querySelectorAll('.tab').forEach((tab, i) => {
     tab.style.color = i === id ? ACTIVE : INACTIVE;
-    tab.style.borderBottom = i === id ? `1px solid ${ACTIVE}` : '2px solid transparent';
-  });
+    tab.style.borderBottom = i === id ? `1px solid ${ACTIVE}` : '2px solid transparent';});
 
   const identity = identities[id];
   const newConfig = identity.sliderConfig;
@@ -280,15 +238,12 @@ function selectIdentity(id) {
   if (identity.videoUrl) {
     if (identity.videoUrl !== currentVideoUrl) {
       loadVideo(identity.videoUrl);
-      currentVideoUrl = identity.videoUrl;
-    } else if (!isMobile()) {
-      videoSection.style.display = 'block';
-    }
-  } else {
+      currentVideoUrl = identity.videoUrl;} 
+      else if (!isMobile()) {
+      videoSection.style.display = 'block';}} 
+      else {
     videoSection.style.display = 'none';
-    currentVideoUrl = null;
-  }
-}
+    currentVideoUrl = null;}}
 
 function buildTabs() {
   const container = document.getElementById('tabs');
@@ -301,9 +256,7 @@ function buildTabs() {
     tab.style.cssText = 'cursor:pointer; font-size:16px; font-weight:500; white-space:nowrap; padding-bottom:4px; flex-shrink:0;';
     tab.style.color = INACTIVE;
     tab.style.borderBottom = '1px solid transparent';
-    container.appendChild(tab);
-  });
-}
+    container.appendChild(tab);});}
 
 /* ---------- Practice widget ---------- */
 
@@ -314,32 +267,25 @@ const generators = {
       2: [[1,50],[2,50],[1,40],[10,40],[5,50]],
       3: [[1,100],[2,60],[1,80],[20,80],[15,90]],
       4: [[1,200],[10,150],[50,200],[25,180],[1,150]],
-      5: [[1,500],[100,400],[1,300],[200,500],[50,450]]
-    },
+      5: [[1,500],[100,400],[1,300],[200,500],[50,450]]},
     generateProblem(difficulty) {
       const pool = this.pools[difficulty];
       const [start, end] = pool[Math.floor(Math.random() * pool.length)];
-      return { start, end, prompt: 'Find the sum from ' + start + ' to ' + end };
-    },
+      return { start, end, prompt: 'Find the sum from ' + start + ' to ' + end };},
     correctAnswer(p) {
       const n = p.end - p.start + 1;
-      return (n / 2) * (p.start + p.end);
-    },
+      return (n / 2) * (p.start + p.end);},
     distractors(p, answer) {
       const n = p.end - p.start + 1;
       return [
         Math.round(((n - 1) / 2) * (p.start + p.end)),
         Math.round(p.start + p.end),
-        Math.round(answer + (p.start + p.end) / 2)
-      ];
-    },
+        Math.round(answer + (p.start + p.end) / 2)];},
     explain(p, answer) {
       const n = p.end - p.start + 1;
       return 'Pair the first and last: ' + p.start + ' + ' + p.end + ' = ' + (p.start + p.end) +
         '. There are ' + n + ' numbers, forming ' + (n/2) + ' pairs. Sum = ' + (n/2) +
-        ' &times; ' + (p.start + p.end) + ' = ' + answer + '.';
-    }
-  }
+        ' &times; ' + (p.start + p.end) + ' = ' + answer + '.';}}
   // exponentProperties: { ... }  <- add next, same shape
 };
 
@@ -361,8 +307,7 @@ function newProblem() {
   const options = [{ val: practiceAnswer, correct: true }, ...wrongs.map(v => ({ val: v, correct: false }))];
   for (let i = options.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [options[i], options[j]] = [options[j], options[i]];
-  }
+    [options[i], options[j]] = [options[j], options[i]];}
 
   const container = document.getElementById('choices');
   container.innerHTML = '';
@@ -385,19 +330,15 @@ function newProblem() {
         btn.style.borderColor = '#cccccc';
         difficulty = Math.max(difficulty - 1, 1);
         fb.textContent = 'Not quite. Reveal the explanation to see why.';
-        fb.style.color = '#999999';
-      }
-    };
-    container.appendChild(btn);
-  });
-}
+        fb.style.color = '#999999';}};
+    container.appendChild(btn);});}
 
 document.getElementById('reveal-btn').onclick = function() {
   if (!currentGenerator) return;
   const el = document.getElementById('explanation');
   el.innerHTML = currentGenerator.explain(currentProblem, practiceAnswer);
-  el.style.display = 'block';
-};
+  el.style.display = 'block';};
+
 document.getElementById('new-btn').onclick = newProblem;
 
 /* ---------- Shared message listener ---------- */
@@ -407,30 +348,23 @@ window.addEventListener('message', (event) => {
     clearInterval(readyInterval);
     identities = event.data.identities;
     buildTabs();
-    selectIdentity(0);
-  }
+    selectIdentity(0);}
   if (event.data && event.data.propertyType && generators[event.data.propertyType]) {
     currentGenerator = generators[event.data.propertyType];
     difficulty = 1;
-    newProblem();
-  }
-if (event.data && event.data.practiceIntro) {
-  document.getElementById('practiceIntro').textContent = event.data.practiceIntro;
-}
-  
-});
+    newProblem();}
+  if (event.data && event.data.practiceIntro) {
+  document.getElementById('practiceIntro').textContent = event.data.practiceIntro;}});
 
 function resizeObserver() {
   const height = document.body.scrollHeight;
-  window.top.postMessage({ type: 'resize', height }, '*');
-}
+  window.top.postMessage({ type: 'resize', height }, '*');}
 
 const observer = new ResizeObserver(resizeObserver);
 observer.observe(document.body);
 
 let readyInterval = setInterval(() => {
-  window.top.postMessage('ready', '*');
-}, 300);
+  window.top.postMessage('ready', '*');}, 300);
 </script>
 
 </body>
