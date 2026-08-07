@@ -403,6 +403,7 @@ document.getElementById('new-btn').onclick = newProblem;
 
 window.addEventListener('message', (event) => {
   if (event.data && event.data.identities) {
+    clearInterval(readyInterval);
     identities = event.data.identities;
     buildTabs();
     selectIdentity(0);
@@ -426,7 +427,9 @@ function resizeObserver() {
 const observer = new ResizeObserver(resizeObserver);
 observer.observe(document.body);
 
-window.parent.postMessage('ready', '*');
+let readyInterval = setInterval(() => {
+  window.parent.postMessage('ready', '*');
+}, 300);
 </script>
 
 </body>
