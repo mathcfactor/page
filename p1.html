@@ -421,14 +421,14 @@ if (event.data && event.data.practiceIntro) {
 
 function resizeObserver() {
   const height = document.body.scrollHeight;
-  window.parent.postMessage({ type: 'resize', height }, '*');
+  window.top.postMessage({ type: 'resize', height }, '*');
 }
 
 const observer = new ResizeObserver(resizeObserver);
 observer.observe(document.body);
 
 let readyInterval = setInterval(() => {
-  window.parent.postMessage('ready', '*');
+  window.top.postMessage('ready', '*');
 }, 300);
 </script>
 
