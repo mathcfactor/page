@@ -13,6 +13,7 @@ body {background: #ffffff;margin: 0;}
   .tab { font-family: 'Playfair Display', serif; }
   .checkmark { font-size: 22px; }
 @media (max-width: 450px) {
+#tabs { justify-content: flex-start !important; }  
 #symbolic { font-size: 17px !important; line-height: 1.2 !important; }
 #display { font-size: 17px !important; line-height: 1.6 !important; }
   .tab { font-size: 13px !important; font-family: 'Playfair Display', serif; }
@@ -39,7 +40,7 @@ label { font-size: 11px !important; }
 
 <!-- Screen 1 -->
 <div id="tabs" style="display: flex; justify-content: center; gap: 1.5rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 1rem; margin-top: 1rem; margin-left: 0.8rem; margin-right: 0.8rem; scrollbar-width: none;"></div>
-<div style="text-align: center; font-size: 25px; margin-bottom: .3rem; margin-top: .1rem; color: #002C64;" id="symbolic"></div>
+<div style="text-align: center; font-size: 25px; margin-bottom: .3rem; margin-top: .5rem; color: #002C64;" id="symbolic"></div>
 <hr style="border: none; border-top: 1px solid #eeeeee; margin: .5rem 0 1.5rem 0;">
 <div style="text-align: center; font-size: 25px; font-weight: 500; margin-bottom: 2.5rem; line-height: 2;" id="display"></div>
 <div id="sliders" style="display: grid; grid-template-columns: 1fr; gap: 1rem; max-width: 250px; margin: 0 auto; padding-left: 1rem; padding-right: 1rem;"></div>
