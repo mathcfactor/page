@@ -264,7 +264,7 @@ const generators = {
     generateProblem(difficulty) {
       const pool = this.pools[difficulty];
       const [start, end] = pool[Math.floor(Math.random() * pool.length)];
-      return { start, end, prompt: 'Find the sum from ' + start + ' to ' + end };},
+      return { start, end, prompt: 'Find the sum of the consecutive integers ' + start + ' to ' + end };},
     correctAnswer(p) {
       const n = p.end - p.start + 1;
       return (n / 2) * (p.start + p.end);},
