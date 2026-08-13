@@ -18,15 +18,14 @@ body {background: #ffffff;margin: 0;}
 #display { font-size: 17px !important; line-height: 1.6 !important; }
   .tab { font-size: 13px !important; font-family: 'Playfair Display', serif; }
   input[type="range"] { height: 4px; }
-#sliders input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 6px; height: 6px; border-radius: 50%; }
-  
+#sliders input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 6px; height: 6px; border-radius: 50%; } 
 #prompt { font-size: 14px !important; }
   .choice-btn { font-size: 13px !important; padding: 8px 12px !important; }
 #practiceContainer p { font-size: 12px !important; }
 #practiceContainer > p[style*="Playfair"] { font-size: 13px !important; }
 #reveal-btn, #new-btn { font-size: 11px !important; padding: 8px !important; }
 #explanation { font-size: 11px !important; padding: 0.8rem 0.9rem !important; }
-#practiceIntro { font-size: 12px !important; }
+#practiceIntro { font-size: 11px !important; }
   .checkmark { font-size: 16px !important; }}
 #container {margin-left: 0.5rem;margin-right: 0.5rem;} 
 @media (min-width: 451px) {
@@ -34,10 +33,8 @@ body {background: #ffffff;margin: 0;}
 label { font-size: 11px !important; }
 #display .katex { color: #002C64; }
 </style></head>
-
 <body>
 <div style="padding: 1rem 0 1rem 0; margin: 0 0.5rem 0.5rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
-
 <!-- Screen 1 -->
 <div id="tabs" style="display: flex; justify-content: center; gap: 1rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 1rem; margin-top: 1rem; margin-left: 0.8rem; margin-right: 0.8rem; scrollbar-width: none;"></div>
 <div style="text-align: center; font-size: 25px; margin-bottom: .3rem; margin-top: .5rem; color: #002C64;" id="symbolic"></div>
@@ -47,7 +44,6 @@ label { font-size: 11px !important; }
 <p style="text-align: right; font-size: 11px; color: #bbbbbb; margin: 1rem 0 1rem 0; max-width: 400px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem;">Adjust the sliders to explore patterns</p>
 </div>
 </div>
-
 <!-- Screen 2 -->
 <div id="videoSection" style="display: none; margin-top: 1.5rem;"></div>
 <div id="container" style="position:relative; width:calc(100% - 1rem); border-radius: 18px; overflow: hidden; background: #f9f9f9;">
@@ -62,9 +58,7 @@ label { font-size: 11px !important; }
 </div>
 </div>
 </div>
-
 <p id="practiceIntro" style="text-align: center; font-size: 15px; color: #555555; margin: 1rem 0.8rem;"></p>
-
 <!-- Screen 3: Practice -->
 <div id="practiceContainer" style="padding: 1.5rem 1rem; margin: 1rem 0.5rem 0.5rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
 <!-- <p style="font-family: 'Playfair Display', serif; font-size: 16px; color: #999999; margin: 0 0 .8rem 0; text-align: right;">Try it yourself</p> -->
@@ -84,21 +78,17 @@ const ACTIVE = '#002C64';
 const INACTIVE = '#cccccc';
 const svgPlay = '<svg viewBox="0 0 24 24" width="16" height="16" fill="#cccccc"><polygon points="5,3 19,12 5,21"/></svg>';
 const svgPause = '<svg viewBox="0 0 24 24" width="16" height="16" fill="#cccccc"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>';
-
 let identities = [];
 let sliderConfig = [];
 let current = 0;
 let sliderEls = [];
 let currentVideoUrl = null;
-
 const vid = document.getElementById('vid');
 const playBtn = document.getElementById('playBtn');
 const scrub = document.getElementById('scrub');
 const time = document.getElementById('time');
 const videoSection = document.getElementById('videoSection');
-
 const isMobile = () => window.innerWidth <= 450;
-
 
 function fmt(s) {
   const m = Math.floor(s / 60);
@@ -259,7 +249,6 @@ function buildTabs() {
     container.appendChild(tab);});}
 
 /* ---------- Practice widget ---------- */
-
 const generators = {
   additionProperties: {
     pools: {
@@ -342,7 +331,6 @@ document.getElementById('reveal-btn').onclick = function() {
 document.getElementById('new-btn').onclick = newProblem;
 
 /* ---------- Shared message listener ---------- */
-
 window.addEventListener('message', (event) => {
   if (event.data && event.data.identities) {
     clearInterval(readyInterval);
@@ -354,7 +342,9 @@ window.addEventListener('message', (event) => {
     difficulty = 1;
     newProblem();}
   if (event.data && event.data.practiceIntro) {
-  document.getElementById('practiceIntro').textContent = event.data.practiceIntro;}});
+    document.getElementById('practiceIntro').innerHTML = event.data.practiceIntro;
+    document.querySelectorAll('#practiceIntro .katex-formula').forEach(el => {
+      katex.render(el.dataset.latex, el, { throwOnError: false });});}});
 
 function resizeObserver() {
   const height = document.body.scrollHeight;
