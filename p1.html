@@ -43,7 +43,7 @@ label { font-size: 11px !important; }
   <!-- Screen 1 -->
 <h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 2rem 0.5rem 0.5rem 0.5rem;">Test It Yourself</h2>
 <div style="padding: 1rem 0 1rem 0; margin: 0 0.5rem 2rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
-<div id="tabs" style="display: flex; justify-content: flex-start; gap: 1.5rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 1rem; margin-top: 1rem; margin-left: 1.5rem; margin-right: 0.8rem; scrollbar-width: none;"></div>
+<div id="tabs" style="display: flex; justify-content: flex-start; gap: 1.5rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 1rem; margin-top: 1rem; margin-left: 4.5rem; margin-right: 3.5rem; scrollbar-width: none;"></div>
 <div style="text-align: center; font-size: 28px; margin-bottom: .3rem; margin-top: .5rem; color: #002C64;" id="symbolic"></div>
 <hr style="border: none; border-top: 1px solid #eeeeee; margin: .5rem 0 1.5rem 0;">
 <div style="text-align: center; font-size: 28px; font-weight: 500; margin-bottom: 2.5rem; line-height: 2;" id="display"></div>
@@ -52,9 +52,9 @@ label { font-size: 11px !important; }
 </div>
 
 <!-- Screen 2 -->
-<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 1.5rem 0.5rem 0.5rem 0.5rem;">See it in Action</h2>
+<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 2.5rem 0.5rem 0.5rem 0.5rem;">See it in Action</h2>
 <div id="videoSection" style="display: none; margin-top: 1.5rem;"></div>
-<div id="videoStrip" style="margin: 0 0.5rem 2rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
+<div id="videoStrip" style="margin: 0 0.5rem 1rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
 <div id="container" style="position:relative; width:calc(100% - 1rem); border-radius: 18px; overflow: hidden; background: #f9f9f9;">
 <video id="vid" playsinline preload="none" style="width:100%; display:block; background: #f9f9f9;"></video>
 <div id="controls" style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-top:1px solid #ddd;">
@@ -68,16 +68,16 @@ label { font-size: 11px !important; }
 </div>
 
 <!-- Practice Intro -->
-<h2 id="practiceIntroTitle" class="section-title" style="display: none; text-align: left; font-size: 22px; color: #bbbbbb; margin: 1.5rem 0.5rem 0.5rem 2.5rem;">Did you Know?</h2>
+<h2 id="practiceIntroTitle" class="section-title" style="display: none; text-align: left; font-size: 22px; color: #bbbbbb; margin: 2.5rem 0.5rem 0.5rem 2.5rem;">Did you Know?</h2>
 <div id="practiceIntroContainer"
-style="padding: 1rem;margin: 1.5rem 0.5rem 2rem 0.5rem;border-radius: 20px;background: #ffffff;border: 1px solid #dddddd;">
-<p id="practiceIntro"style="text-align: left;font-size: 22px;color: #002C64;margin: 1rem 0;"></p>
+style="padding: 1rem;margin: 1.5rem 0.5rem 1rem 0.5rem;border-radius: 20px;background: #ffffff;border: 1px solid #dddddd;">
+<p id="practiceIntro"style="text-align: left;font-size: 22px;color: #002C64;margin: 1rem 4.5;"></p>
 
 </div>
 <!-- Screen 3: Practice -->
-<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 1.5rem 0.5rem 0rem 2.5rem;">Practice</h2>
-<div id="practiceContainer" style="padding: 1.5rem 1rem; margin: 1.5rem 0.5rem 0.5rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
-<!-- <p style="font-family: 'Playfair Display', serif; font-size: 16px; color: #999999; margin: 0 0 .8rem 0; text-align: right;">Try it yourself</p> -->
+<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 2.5rem 0.5rem 0.5rem 0.5rem;">Practice</h2>
+<div id="practiceStrip" style="margin: 0 0.5rem 0.5rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
+<div id="practiceContainer" style="padding: 1.5rem 1rem; margin: 0; border-radius: 18px; background: #f9f9f9;">
 <div id="prompt" style="text-align: left; font-size: 22px; font-weight: 500; color: #002C64; margin-bottom: 1.5rem; line-height: 1.5;">Loading...</div>
 <div id="choices" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: .5rem;"></div>
 <p style="text-align: right; font-size: 11px; color: #bbbbbb; margin: 0 0 1rem 0;">Level <span id="level">1</span> of 3</p>
@@ -87,6 +87,7 @@ style="padding: 1rem;margin: 1.5rem 0.5rem 2rem 0.5rem;border-radius: 20px;backg
 <button id="new-btn" style="flex:1; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#999999; font-size:16px;">Try another</button>
 </div>
 <div id="explanation" style="display: none; margin-top: 1rem; padding: 1rem 1.1rem; background: #ffffff; border-radius: 12px; font-size: 15px; color: #555555; line-height: 1.5;"></div>
+</div>
 </div>
 
 <script>
