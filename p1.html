@@ -26,9 +26,10 @@ body {background: #ffffff;margin: 0;}
 #practiceContainer > p[style*="Playfair"] { font-size: 13px !important; }
 #reveal-btn, #new-btn { font-size: 11px !important; padding: 8px !important; }
 #explanation { font-size: 11px !important; padding: 0.8rem 0.9rem !important; }
-#practiceIntro { font-size: 13px !important; margin: 1rem !important; }
-  .section-title { font-size: 11px !important; }
+#practiceIntro { font-size: 13px !important; margin: 1rem 0 !important; }
+  .section-title { font-size: 11px !important; margin-top: 1rem !important; }
   .checkmark { font-size: 16px !important; }
+#choices { max-width: none !important; margin-left: 1rem !important; margin-right: 1rem !important; }}
 #container {margin-left: 0.5rem; margin-right: 0.5rem;}
 
 @media (min-width: 451px) {
@@ -42,7 +43,7 @@ label { font-size: 11px !important; }
 </style></head>
 <body>
   <!-- Screen 1 -->
-<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 2rem 0.5rem 0.5rem 0.5rem;">Test It Yourself</h2>
+<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 2rem 0.5rem 0.5rem 1rem;">Test It Yourself</h2>
 <div style="padding: 1rem 0 1rem 0; margin: 0 0.5rem 2rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
 <div id="tabs" style="display: flex; justify-content: flex-start; gap: 1.5rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 1rem; margin-top: 1rem; margin-left: 6.5rem; margin-right: 3.5rem; scrollbar-width: none;"></div>
 <div style="text-align: center; font-size: 28px; margin-bottom: .3rem; margin-top: .5rem; color: #002C64;" id="symbolic"></div>
@@ -53,7 +54,7 @@ label { font-size: 11px !important; }
 </div>
 
 <!-- Screen 2 -->
-<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 2.5rem 0.5rem 0.5rem 0.5rem;">See It In Action</h2>
+<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 2.5rem 0.5rem 0.5rem 1rem;">See It In Action</h2>
 <div id="videoSection" style="display: none; margin-top: .5rem;"></div>
 <div id="videoStrip" style="margin: 0 0.5rem 1rem 0.5rem; border-radius: 18px; background: #f9f9f9; padding-top: 0.5rem;">
 <div id="container" style="position:relative; width:calc(100% - 1rem); border-radius: 18px; overflow: hidden; background: #f9f9f9;">
@@ -69,13 +70,13 @@ label { font-size: 11px !important; }
 </div>
 
 <!-- Practice Intro -->
-<h2 id="practiceIntroTitle" class="section-title" style="display: none; text-align: left; font-size: 22px; color: #bbbbbb; margin: 2.5rem 0.5rem 0.5rem 0.5rem;">Did You Know?</h2>
+<h2 id="practiceIntroTitle" class="section-title" style="display: none; text-align: left; font-size: 22px; color: #bbbbbb; margin: 2.5rem 0.5rem 0.5rem 1rem;">Did You Know?</h2>
 <div id="practiceIntroContainer"
 style="padding: 1rem;margin: 0.5rem 0.5rem 1rem 0.5rem;border-radius: 20px;background: #ffffff;border: 1px solid #dddddd;">
 <p id="practiceIntro" style="text-align: left; font-size: 22px; color: #002C64; margin: 1rem 3.5rem 1rem 6.5rem;"></p>
 </div>
 <!-- Screen 3: Practice -->
-<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 2.5rem 0.5rem 0.5rem 0.5rem;">Practice</h2>
+<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 2.5rem 0.5rem 0.5rem 1rem;">Practice</h2>
 <div id="practiceStrip" style="margin: 0 0.5rem 0.5rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
 <div id="practiceContainer" style="padding: 1.5rem 1rem; margin: 0; border-radius: 18px; background: #f9f9f9;">
 <div id="prompt" style="text-align: left; font-size: 22px; font-weight: 500; color: #002C64; margin: 0 3.5rem 1.5rem 6.5rem; line-height: 1.5;">Loading...</div>
