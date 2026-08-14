@@ -29,16 +29,19 @@ body {background: #ffffff;margin: 0;}
   .checkmark { font-size: 16px !important; }}
 #container {margin-left: 0.5rem; margin-right: 0.5rem; margin-top: 1.5rem;}
 @media (min-width: 451px) {
+@media (min-width: 451px) {
 #container {max-width: 600px;margin: 0 auto;}
 #sliders label { font-size: 16px !important; }
-#sliders { max-width: 400px !important; }}
+#sliders { max-width: 400px !important; }
+#practiceContainer { max-width: 400px; margin-left: auto; margin-right: auto; }}
 label { font-size: 11px !important; }
 #display .katex { color: #002C64; }
+
 </style></head>
 <body>
   <!-- Screen 1 -->
 <div style="padding: 1rem 0 1rem 0; margin: 0 0.5rem 0.5rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
-<div id="tabs" style="display: flex; justify-content: center; gap: 1.5rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 1rem; margin-top: 1rem; margin-left: 0.8rem; margin-right: 0.8rem; scrollbar-width: none;"></div>
+<div id="tabs" style="display: flex; justify-content: flex-start; gap: 1.5rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 1rem; margin-top: 1rem; margin-left: 0.8rem; margin-right: 0.8rem; scrollbar-width: none;"></div>
 <div style="text-align: center; font-size: 28px; margin-bottom: .3rem; margin-top: .5rem; color: #002C64;" id="symbolic"></div>
 <hr style="border: none; border-top: 1px solid #eeeeee; margin: .5rem 0 1.5rem 0;">
 <div style="text-align: center; font-size: 28px; font-weight: 500; margin-bottom: 2.5rem; line-height: 2;" id="display"></div>
@@ -61,8 +64,8 @@ label { font-size: 11px !important; }
 
 <!-- Practice Intro -->
 <div id="practiceIntroContainer"
-style="padding: 1rem;margin: 1.5rem 0.5rem 1.5rem 0.5rem;border-radius: 18px;background: #ffffff;border: 1px solid #dddddd;">
-<p id="practiceIntro"style="text-align: left;font-size: 20px;color: #002C64;margin: 1rem 0;"></p>
+style="padding: 1rem;margin: 1.5rem 0.5rem 1.5rem 0.5rem;border-radius: 20px;background: #ffffff;border: 1px solid #dddddd;">
+<p id="practiceIntro"style="text-align: left;font-size: 22px;color: #002C64;margin: 1rem 0;"></p>
 
 </div>
 <!-- Screen 3: Practice -->
@@ -73,10 +76,10 @@ style="padding: 1rem;margin: 1.5rem 0.5rem 1.5rem 0.5rem;border-radius: 18px;bac
 <p style="text-align: right; font-size: 11px; color: #bbbbbb; margin: 0 0 1rem 0;">Level <span id="level">1</span> of 3</p>
 <p id="feedback" style="text-align: center; font-size: 13px; margin: 0 0 1rem 0; min-height: 18px;"></p>
 <div style="display: flex; gap: 8px;">
-<button id="reveal-btn" style="flex:1; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#999999; font-size:13px;">Reveal explanation</button>
-<button id="new-btn" style="flex:1; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#999999; font-size:13px;">Try another</button>
+<button id="reveal-btn" style="flex:1; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#999999; font-size:16px;">Reveal explanation</button>
+<button id="new-btn" style="flex:1; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#999999; font-size:16px;">Try another</button>
 </div>
-<div id="explanation" style="display: none; margin-top: 1rem; padding: 1rem 1.1rem; background: #ffffff; border-radius: 12px; font-size: 13px; color: #555555; line-height: 1.5;"></div>
+<div id="explanation" style="display: none; margin-top: 1rem; padding: 1rem 1.1rem; background: #ffffff; border-radius: 12px; font-size: 15px; color: #555555; line-height: 1.5;"></div>
 </div>
 
 <script>
@@ -249,7 +252,7 @@ function buildTabs() {
     tab.className = 'tab';
     tab.textContent = identity.tabLabel;
     tab.onclick = () => selectIdentity(i);
-    tab.style.cssText = 'cursor:pointer; font-size:20px; font-weight:500; white-space:nowrap; padding-bottom:4px; flex-shrink:0;';
+    tab.style.cssText = 'cursor:pointer; font-size:24px; font-weight:500; white-space:nowrap; padding-bottom:4px; flex-shrink:0;';
     tab.style.color = INACTIVE;
     tab.style.borderBottom = '1px solid transparent';
     container.appendChild(tab);});}
@@ -310,7 +313,7 @@ function newProblem() {
     const btn = document.createElement('button');
     btn.textContent = opt.val;
     btn.className = 'choice-btn';
-    btn.style.cssText = 'text-align:left; padding:10px 14px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-size:15px; font-family:"Open Sans",sans-serif; color:#002C64;';
+    btn.style.cssText = 'text-align:left; padding:10px 14px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-size:18px; font-family:"Open Sans",sans-serif; color:#002C64;';
     btn.onclick = function() {
       if (practiceLocked) return;
       practiceLocked = true;
