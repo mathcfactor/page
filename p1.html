@@ -11,6 +11,7 @@ body {background: #ffffff;margin: 0;}
 #sliders input[type="range"] {-webkit-appearance: none;appearance: none;height: 4px;background: #dddddd;border-radius: 2px;}
 #sliders input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
   .tab { font-family: 'Playfair Display', serif; }
+  .section-title { font-weight: normal; }
   .checkmark { font-size: 25px; }
 @media (max-width: 450px) {
 #tabs { justify-content: flex-start !important; margin-left: 1rem !important; margin-right: 1rem !important; }   
@@ -88,7 +89,7 @@ style="padding: 1rem;margin: 0.5rem 0.5rem 1rem 0.5rem;border-radius: 20px;backg
 <div id="choices" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: .5rem;"></div>
 <p style="text-align: right; font-size: 13px; color: #999999; margin: 0 0 1rem 0;">Level <span id="level">1</span> of 3</p>
 <p id="feedback" style="text-align: center; font-size: 15px; margin: 0 0 1rem 0; min-height: 18px;"></p>
-<div style="display: flex; gap: 8px;">
+<div class="button-row" style="display: flex; gap: 8px;">
 <button id="reveal-btn" style="flex: 0 0 auto; width:160px; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#888888; font-size:16px;">Reveal explanation</button>
 <button id="new-btn" style="flex: 0 0 auto; width:160px; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#888888; font-size:16px;">Try another</button>
 </div>
