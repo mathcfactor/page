@@ -43,9 +43,7 @@ input[type="range"] { height: 4px; }
 #practiceStrip {
   margin-left: 0 !important;
   margin-right: 0 !important;
-  border-radius: 0 !important;
-}
-}
+  border-radius: 0 !important;}}
 @media (min-width: 451px) {
 #container {max-width: 600px;margin: 0 auto;}
 #choices { max-width: 100px; margin-left: 6.5rem; margin-right: auto; }
@@ -54,14 +52,13 @@ input[type="range"] { height: 4px; }
 #sliders { max-width: 400px !important; }
 label { font-size: 11px !important; }
 #display .katex { color: #002C64; }
-#vid { max-width: 500px; margin: 0 auto; }
-}
+#vid { max-width: 500px; margin: 0 auto; }}
 
 
 </style></head>
 <body>
 <!-- Screen 1 -->
-<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 2rem 0.5rem 0.5rem 1.5rem;">Play with the math</h2>
+<h2 class="section-title" style="text-align: left; font-size: 22px; color: #bbbbbb; margin: 2rem 0.5rem 0.5rem 1.5rem;">Explore the math</h2>
 <div id="screen1" style="padding: 1rem 0 1rem 0; margin: 0 0.5rem 2rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
 <div id="tabs" style="display: flex; justify-content: flex-start; gap: 1.5rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 1rem; margin-top: 1rem; margin-left: 6.5rem; margin-right: 3.5rem; scrollbar-width: none;"></div>
 <div style="text-align: center; font-size: 28px; margin-bottom: .3rem; margin-top: .5rem; color: #002C64;" id="symbolic"></div>
@@ -83,9 +80,7 @@ label { font-size: 11px !important; }
 </button>
 <input id="scrub" type="range" value="0" min="0" step="0.1" style="flex:1; accent-color:#cccccc; cursor:pointer; -webkit-appearance: none; appearance: none; height: 4px; background: #dddddd; border-radius: 2px;">
 <span id="time" style="font-size:10px; color:#cccccc; flex-shrink:0; min-width:80px; text-align:right;">0:00 / 0:00</span>
-</div>
-</div>
-</div>
+</div></div></div>
 
 <!-- Practice Intro -->
 <h2 id="practiceIntroTitle" class="section-title" style="display: none; text-align: left; font-size: 22px; color: #bbbbbb; margin: 2.5rem 0.5rem 0.5rem 1.5rem;">Did you know?</h2>
@@ -106,19 +101,13 @@ style="padding: 1rem;margin: 0.5rem 0.5rem 1rem 0.5rem;border-radius: 20px;backg
 <button id="new-btn" style="flex: 0 0 auto; width:160px; padding:10px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; font-family:'Open Sans',sans-serif; color:#888888; font-size:14px;">Try another</button>
 </div>
 <div id="explanation" style="display: none; margin-top: 1rem; padding: 1rem 1.1rem; background: #ffffff; border-radius: 12px; font-size: 15px; color: #555555; line-height: 1.5;"></div>
-</div>
-</div>
+</div></div>
 
 <script>
-const ACTIVE = '#002C64';
-const INACTIVE = '#aaaaaa';
+const ACTIVE = '#002C64';const INACTIVE = '#aaaaaa';
 const svgPlay = '<svg viewBox="0 0 24 24" width="16" height="16" fill="#cccccc"><polygon points="5,3 19,12 5,21"/></svg>';
 const svgPause = '<svg viewBox="0 0 24 24" width="16" height="16" fill="#cccccc"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>';
-let identities = [];
-let sliderConfig = [];
-let current = 0;
-let sliderEls = [];
-let currentVideoUrl = null;
+let identities = [];let sliderConfig = [];let current = 0;let sliderEls = [];let currentVideoUrl = null;
 const vid = document.getElementById('vid');
 const playBtn = document.getElementById('playBtn');
 const scrub = document.getElementById('scrub');
@@ -126,131 +115,63 @@ const time = document.getElementById('time');
 const videoSection = document.getElementById('videoSection');
 const isMobile = () => window.innerWidth <= 450;
 
-function fmt(s) {
-  const m = Math.floor(s / 60);
-  const sec = Math.floor(s % 60);
-  return m + ':' + (sec < 10 ? '0' : '') + sec;}
-playBtn.addEventListener('click', function() {
-  if (vid.paused) { vid.play(); playBtn.innerHTML = svgPause; }
-  else { vid.pause(); playBtn.innerHTML = svgPlay; }});
-vid.addEventListener('timeupdate', function() {
-  if (vid.duration) {
-    scrub.value = (vid.currentTime / vid.duration) * 100;
-    time.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration);}});
-scrub.addEventListener('input', function() {
-  if (vid.duration) vid.currentTime = (scrub.value / 100) * vid.duration;});
+function fmt(s) { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+playBtn.addEventListener('click', function() { if (vid.paused) { vid.play(); playBtn.innerHTML = svgPause; } else { vid.pause(); playBtn.innerHTML = svgPlay; } });
+vid.addEventListener('timeupdate', function() { if (vid.duration) { scrub.value = (vid.currentTime / vid.duration) * 100; time.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration); } });
+scrub.addEventListener('input', function() { if (vid.duration) vid.currentTime = (scrub.value / 100) * vid.duration; });
 vid.addEventListener('ended', function() { playBtn.innerHTML = svgPlay; });
 
-function loadVideo(url) {
-  if (url) {
-    if (!isMobile()) videoSection.style.display = 'block';
-    vid.src = url + '?t=' + new Date().getTime();
-    vid.load();
-    playBtn.innerHTML = svgPlay;
-    scrub.value = 0;
-    time.textContent = '0:00 / 0:00';} else {
-    videoSection.style.display = 'none';
-    vid.src = '';}}
+function loadVideo(url) { if (url) { if (!isMobile()) videoSection.style.display = 'block'; vid.src = url + '?t=' + new Date().getTime(); vid.load(); playBtn.innerHTML = svgPlay; scrub.value = 0; time.textContent = '0:00 / 0:00'; } 
+else { videoSection.style.display = 'none'; vid.src = ''; } }
 
-function renderKatex(id, latex) {
-  katex.render(latex, document.getElementById(id), { throwOnError: false, displayMode: true });}
+function renderKatex(id, latex) {katex.render(latex, document.getElementById(id), { throwOnError: false, displayMode: true });}
 
-function colorize(latex) {
-  let result = latex;
-  sliderConfig.forEach(s => {
+function colorize(latex) {let result = latex;sliderConfig.forEach(s => {
     const varName = s.name || s.compute;
     if (!varName) return;
-    const regex = new RegExp(`\\b${varName}\\b`, 'g');
-    result = result.replace(regex, `{\\color{${s.color}} ${varName}}`);});
-  return result;}
+    const regex = new RegExp(`\\b${varName}\\b`, 'g');result = result.replace(regex, `{\\color{${s.color}} ${varName}}`);});
+    return result;}
 
 function buildLive(template, values) {
-  let result = template;
-  sliderConfig.filter(s => s.name).forEach(s => {
-    const regex = new RegExp(`\\{${s.name}\\}`, 'g');
-    result = result.replace(regex, `{\\color{${s.color}} ${values[s.name]}}`);});
-  sliderConfig.filter(s => s.compute).forEach(s => {
+  let result = template;sliderConfig.filter(s => s.name).forEach(s => {
+    const regex = new RegExp(`\\{${s.name}\\}`, 'g');result = result.replace(regex, `{\\color{${s.color}} ${values[s.name]}}`);});sliderConfig.filter(s => s.compute).forEach(s => {
     const value = eval(s.expression.replace(/[a-z]/g, m => values[m] ?? m));
-    const regex = new RegExp(`\\{${s.compute}\\}`, 'g');
-    result = result.replace(regex, `{\\color{${s.color}} ${value}}`);});
-  return result;}
+    const regex = new RegExp(`\\{${s.compute}\\}`, 'g');result = result.replace(regex, `{\\color{${s.color}} ${value}}`);});
+    return result;}
 
 function getValues() {
-  const values = {};
-  sliderEls.forEach((el, i) => {
-    values[sliderConfig[i].name] = parseInt(el.value);});
+  const values = {};sliderEls.forEach((el, i) => {values[sliderConfig[i].name] = parseInt(el.value);});
   return values;}
 
 function update() {
-  const values = getValues();
-  sliderEls.forEach((el, i) => {
-    const cfg = sliderConfig[i];
-    document.getElementById(`out-${cfg.name}`).textContent = values[cfg.name];});
-  renderKatex('display', buildLive(identities[current].liveLatex, values));}
+  const values = getValues();sliderEls.forEach((el, i) => {
+    const cfg = sliderConfig[i];document.getElementById(`out-${cfg.name}`).textContent = values[cfg.name];});renderKatex('display', buildLive(identities[current].liveLatex, values));}
 
-function buildSliders(config) {
-  sliderConfig = config;
-  const container = document.getElementById('sliders');
-  container.innerHTML = '';
-  sliderEls = [];
+function buildSliders(config) {sliderConfig = config;
+  const container = document.getElementById('sliders');container.innerHTML = '';sliderEls = [];
   const old = document.getElementById('mobile-thumb-styles');
   if (old) old.remove();
   const isMob = isMobile();
   if (isMob) {
-    const style = document.createElement('style');
-    style.id = 'mobile-thumb-styles';
-    style.textContent = config.filter(s => s.name).map(cfg => `
-  	#slider-${cfg.name} {
-    -webkit-appearance: none;
-    appearance: none;
-    background: transparent;}
-  	#slider-${cfg.name}::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: ${cfg.color};
-    margin-top: -2px}
-  #slider-${cfg.name}::-webkit-slider-runnable-track {
-    -webkit-appearance: none;
-    height: 2px;
-    background: #dddddd;
-    border-radius: 2px;}
-`).join('');
-    document.head.appendChild(style);} 
+    const style = document.createElement('style');style.id = 'mobile-thumb-styles';style.textContent = config.filter(s => s.name).map(cfg => `
+  	#slider-${cfg.name} {-webkit-appearance: none;appearance: none;background: transparent;}
+  	#slider-${cfg.name}::-webkit-slider-thumb {-webkit-appearance: none;width: 12px;height: 12px;border-radius: 50%;background: ${cfg.color};margin-top: -2px}
+  #slider-${cfg.name}::-webkit-slider-runnable-track {-webkit-appearance: none;height: 2px;background: #dddddd;border-radius: 2px;}
+`).join('');document.head.appendChild(style);} 
     else {
-    const style = document.createElement('style');
-    style.id = 'desktop-thumb-styles';
-    style.textContent = config.filter(s => s.name).map(cfg => `
+    const style = document.createElement('style');style.id = 'desktop-thumb-styles';style.textContent = config.filter(s => s.name).map(cfg => `
 	#slider-${cfg.name}::-webkit-slider-thumb {
     background: ${cfg.color};}
-`).join('');
-    document.head.appendChild(style);}
+`).join('');document.head.appendChild(style);}
 
   config.filter(s => s.name).forEach(cfg => {
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'display: flex; align-items: center; gap: 8px;';
-    const label = document.createElement('label');
-    label.style.cssText = `font-size: 14px; color: ${cfg.color}; font-weight: 500; white-space: nowrap;`;
-    label.innerHTML = `${cfg.name} = <span id="out-${cfg.name}">${cfg.default}</span>`;
-    const input = document.createElement('input');
-    input.type = 'range';
-    input.min = cfg.min;
-    input.max = cfg.max;
-    input.value = cfg.default;
-    input.step = 1;
-    input.id = `slider-${cfg.name}`;
-    input.className = 'slider-track';
-    input.style.cssText = `flex: 1; accent-color: ${cfg.color};${isMob ? ' appearance: none; -webkit-appearance: none;' : ''}`;
-    input.addEventListener('input', update);
-    wrapper.appendChild(label);
-    wrapper.appendChild(input);
-    container.appendChild(wrapper);
+    const wrapper = document.createElement('div');wrapper.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+    const label = document.createElement('label');label.style.cssText = `font-size: 14px; color: ${cfg.color}; font-weight: 500; white-space: nowrap;`;label.innerHTML = `${cfg.name} = <span id="out-${cfg.name}">${cfg.default}</span>`;
+    const input = document.createElement('input');input.type = 'range';input.min = cfg.min;input.max = cfg.max;input.value = cfg.default;input.step = 1;input.id = `slider-${cfg.name}`;input.className = 'slider-track';
+    input.style.cssText = `flex: 1; accent-color: ${cfg.color};${isMob ? ' appearance: none; -webkit-appearance: none;' : ''}`;input.addEventListener('input', update);wrapper.appendChild(label);wrapper.appendChild(input);container.appendChild(wrapper);
     sliderEls.push(input);});}
 
-function selectIdentity(id) {
-  current = id;
-  document.querySelectorAll('.tab').forEach((tab, i) => {
+function selectIdentity(id) {current = id;document.querySelectorAll('.tab').forEach((tab, i) => {
     tab.style.color = i === id ? ACTIVE : INACTIVE;
     tab.style.borderBottom = i === id ? `1px solid ${ACTIVE}` : '2px solid transparent';});
 
@@ -262,22 +183,15 @@ function selectIdentity(id) {
   renderKatex('symbolic', colorize(identity.symbolicLatex));
   update();
   if (identity.videoUrl) {
-    if (identity.videoUrl !== currentVideoUrl) {
-      loadVideo(identity.videoUrl);
-      currentVideoUrl = identity.videoUrl;} 
-      else if (!isMobile()) {
-      videoSection.style.display = 'block';}} 
-      else {
-    videoSection.style.display = 'none';
-    currentVideoUrl = null;}}
+    if (identity.videoUrl !== currentVideoUrl) {loadVideo(identity.videoUrl);currentVideoUrl = identity.videoUrl;} 
+      else if (!isMobile()) {videoSection.style.display = 'block';}} 
+      else {videoSection.style.display = 'none';currentVideoUrl = null;}}
 
 function buildTabs() {
   const container = document.getElementById('tabs');
   container.innerHTML = '';
   identities.forEach((identity, i) => {
-    const tab = document.createElement('div');
-    tab.className = 'tab';
-    tab.textContent = identity.tabLabel;
+    const tab = document.createElement('div');tab.className = 'tab';tab.textContent = identity.tabLabel;
     tab.onclick = () => selectIdentity(i);
     tab.style.cssText = 'cursor:pointer; font-size:22px; font-weight:500; white-space:nowrap; padding-bottom:4px; flex-shrink:0;';
     tab.style.color = INACTIVE;
@@ -311,42 +225,78 @@ const generators = {
       return 'Pair the first and last: ' + p.start + ' + ' + p.end + ' = ' + (p.start + p.end) +
         '. There are ' + n + ' numbers, forming ' + (n/2) + ' pairs. Sum = ' + (n/2) +
         ' &times; ' + (p.start + p.end) + ' = ' + answer + '.';}},
-  exponentProperties: {
-      kRanges: {1:[2,2], 2:[2,3], 3:[2,3]},
-      xRanges: {1:[1,2], 2:[1,3], 3:[1,1]},
-      cRanges: {3:[2,3]},
-      bases: [2,3,4,5],
-      basesByLevel: {3:[2,3]},
 
-    generateProblem(difficulty) {
-      const [kMin, kMax] = this.kRanges[difficulty];
-      const [xMin, xMax] = this.xRanges[difficulty];
-      const hasC = difficulty === 3;
-      const cRange = hasC ? this.cRanges[difficulty] : null;
-      const baseList = this.basesByLevel[difficulty] || this.bases;
+exponentProperties: {
 
-    let b, k, x, c, secondBase, N;
-    do {
-      b = baseList[Math.floor(Math.random() * baseList.length)];
-      k = kMin + Math.floor(Math.random() * (kMax - kMin + 1));
-      x = xMin + Math.floor(Math.random() * (xMax - xMin + 1));
-      c = hasC ? cRange[0] + Math.floor(Math.random() * (cRange[1] - cRange[0] + 1)) : 1;
-      secondBase = Math.pow(b, k);
-      N = Math.pow(b, (1 + k * c) * x);
-    } while (N > 999 || N < 10);
+  // LEVEL 1: b^x * (b^k)^x = N
+  level1Pool: [
+    { b: 2, k: 2, x: 2, N: 64 },
+    { b: 2, k: 2, x: 3, N: 512 },
+    { b: 2, k: 3, x: 2, N: 256 },
+    { b: 3, k: 2, x: 2, N: 729 }
+  ],
 
-    const prompt = hasC
-      ? 'Solve for x: ' + b + '^x \u00d7 ' + secondBase + '^(' + c + 'x) = ' + N
-      : 'Solve for x: ' + b + '^x \u00d7 ' + secondBase + '^x = ' + N;
-    return { b, k, x, c, secondBase, N, hasC, prompt };},
-  correctAnswer(p) {
-    return p.x;},
+  // LEVEL 2: b^x * (b^k)^(cx) = N
+  level2Pool: [
+    { b: 2, k: 1, c: 2, x: 2, N: 64 },
+    { b: 2, k: 1, c: 2, x: 3, N: 512 },
+    { b: 2, k: 1, c: 3, x: 2, N: 256 },
+    { b: 2, k: 2, c: 2, x: 2, N: 1024 },
+    { b: 3, k: 1, c: 2, x: 2, N: 729 }
+  ],
+
+  // LEVEL 3: b^x * b^(cx+n) = N
+  level3Pool: [
+    { b: 2, c: 2, n: 2, x: 2, N: 256 },
+    { b: 2, c: 2, n: 3, x: 2, N: 512 },
+    { b: 2, c: 2, n: 4, x: 1, N: 128 },
+    { b: 2, c: 2, n: 4, x: 2, N: 1024 },
+    { b: 2, c: 3, n: 2, x: 2, N: 1024 },
+    { b: 2, c: 3, n: 3, x: 1, N: 128 },
+    { b: 2, c: 3, n: 4, x: 1, N: 256 },
+    { b: 3, c: 2, n: 2, x: 1, N: 243 },
+    { b: 3, c: 2, n: 3, x: 1, N: 729 },
+    { b: 3, c: 2, n: 4, x: 1, N: 2187 },
+    { b: 3, c: 3, n: 2, x: 1, N: 729 },
+    { b: 3, c: 3, n: 3, x: 1, N: 2187 },
+    { b: 4, c: 2, n: 2, x: 1, N: 1024 }
+  ],
+
+  generateProblem(difficulty) {
+    const pool = this['level' + difficulty + 'Pool'];
+    const chosen = pool[Math.floor(Math.random() * pool.length)];
+    const { b, x, N } = chosen;
+    const k = chosen.k ?? null;
+    const c = chosen.c ?? null;
+    const n = chosen.n ?? null;
+    const hasC = difficulty === 2;
+    const hasN = difficulty === 3;
+    const secondBase = k !== null ? Math.pow(b, k) : null;
+
+    let prompt;
+    if (hasN) {prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + b + '^(' + c + 'x+' + n + ') = ' + N;
+    } else if (hasC) {prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + secondBase + '^(' + c + 'x) = ' + N;
+    } else {prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + secondBase + '^x = ' + N;
+    }
+
+    return { b, k, c, n, x, secondBase, N, hasC, hasN, prompt };},
+
+  correctAnswer(p) {return p.x;},
 
   distractors(p, answer) {
-    const m = 1 + p.k * p.c;
-    const ignoredKC = Math.round((m * p.x) / 2);
     const set = new Set([answer]);
-    const candidates = [ignoredKC, answer + 1, answer - 1, answer + 2, answer + m];
+    let candidates;
+
+    if (p.hasN) {
+      // exponent = (1+c)x + n ; wrong answer if student ignores n, or off-by-one
+      const m = 1 + p.c;
+      const ignoredN = Math.round((m * p.x + p.n) / m);
+      candidates = [ignoredN, answer + 1, answer - 1, answer + 2, p.x + p.n];
+    } else {
+      const m = p.hasC ? 1 + p.k * p.c : 1 + p.k;
+      const ignoredKC = Math.round((m * p.x) / 2);
+      candidates = [ignoredKC, answer + 1, answer - 1, answer + 2, answer + m];}
+
     const out = [];
     for (const cand of candidates) {
       if (cand > 0 && !set.has(cand)) { set.add(cand); out.push(cand); }
@@ -354,13 +304,21 @@ const generators = {
     return out;},
 
   explain(p, answer) {
-    const m = 1 + p.k * p.c;
+    if (p.hasN) {
+      const m = 1 + p.c;
+      const totalExp = m * answer + p.n;
+      return 'Combine exponents: ' + p.b + '^x \u00d7 ' + p.b + '^(' + p.c + 'x+' + p.n + ') = ' +
+        p.b + '^(' + '(1+' + p.c + ')x+' + p.n + ') = ' + p.b + '^(' + m + 'x+' + p.n + '). ' +
+        'Set equal: ' + m + 'x+' + p.n + ' = ' + totalExp + ' (since ' + p.N + ' = ' + p.b + '^' + totalExp + '). ' +
+        'Solving: x = ' + answer + '.';}
     if (p.hasC) {
+      const m = 1 + p.k * p.c;
       return 'Rewrite ' + p.secondBase + ' as ' + p.b + '^' + p.k + ', so the equation becomes ' +
         p.b + '^x \u00d7 (' + p.b + '^' + p.k + ')^(' + p.c + 'x) = ' + p.N +
         '. Apply the power rule: (' + p.b + '^' + p.k + ')^(' + p.c + 'x) = ' + p.b + '^(' + (p.k * p.c) + 'x). ' +
         'Now add exponents: ' + p.b + '^(' + m + 'x) = ' + p.N + ' = ' + p.b + '^' + (m * answer) +
         '. Matching exponents: ' + m + 'x = ' + (m * answer) + ', so x = ' + answer + '.';}
+    const m = 1 + p.k;
     return 'Rewrite ' + p.secondBase + ' as ' + p.b + '^' + p.k + ', so the equation becomes ' +
       p.b + '^x \u00d7 ' + p.b + '^(' + p.k + 'x) = ' + p.N + '. Add exponents: ' + p.b + '^(' +
       m + 'x) = ' + p.N + ' = ' + p.b + '^' + (m * answer) + '. Matching exponents: ' + m +
