@@ -29,6 +29,7 @@ input[type="range"] { height: 4px; }
 #sliders { max-width: 200px !important; }
 #practiceIntro { font-size: 13px !important; margin: .5rem 0 1rem .2rem !important; }
 #prompt { font-size: 12px !important; margin: 0 1rem 1rem .2rem !important; }
+#promptEquation { font-size: 15px !important; margin: 0.5rem 1rem 1rem .2rem !important; }
   .choice-btn { font-size: 12px !important; padding: 8px 12px !important; }
 #choices { max-width: 150px !important; margin-left: .2rem !important; margin-right: 1rem !important; }
 #practiceContainer p { font-size: 12px !important; }
@@ -93,6 +94,7 @@ style="padding: 1rem;margin: 0.5rem 0.5rem 1rem 0.5rem;border-radius: 20px;backg
 <div id="practiceStrip" style="margin: 0 0.5rem 0.5rem 0.5rem; border-radius: 18px; background: #f9f9f9;">
 <div id="practiceContainer" style="padding: 1.5rem 1rem; margin: 0; border-radius: 18px; background: #f9f9f9;">
 <div id="prompt" style="text-align: left; font-size: 22px; font-weight: 500; color: #002C64; margin: 0 3.5rem 1.5rem 6.5rem; line-height: 1.5;">Loading...</div>
+<div id="promptEquation" style="text-align: left; font-size: 22px; font-weight: 500; color: #002C64; margin: 0.5rem 3.5rem 1.5rem 6.5rem; line-height: 1.5;"></div>
 <div id="choices" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: .5rem;"></div>
 <p style="text-align: right; font-size: 13px; color: #999999; margin: 0 0 1rem 0;">Level <span id="level">1</span> of 3</p>
 <p id="feedback" style="text-align: center; font-size: 15px; margin: 0 0 1rem 0; min-height: 18px;"></p>
@@ -227,7 +229,7 @@ const generators = {
         ' &times; ' + (p.start + p.end) + ' = ' + answer + '.';}},
 
 exponentProperties: {
-
+ 
   // LEVEL 1: b^x * (b^k)^x = N
   level1Pool: [
     { b: 2, k: 2, x: 2, N: 64 },
@@ -235,7 +237,7 @@ exponentProperties: {
     { b: 2, k: 3, x: 2, N: 256 },
     { b: 3, k: 2, x: 2, N: 729 }
   ],
-
+ 
   // LEVEL 2: b^x * (b^k)^(cx) = N
   level2Pool: [
     { b: 2, k: 1, c: 2, x: 2, N: 64 },
@@ -244,7 +246,7 @@ exponentProperties: {
     { b: 2, k: 2, c: 2, x: 2, N: 1024 },
     { b: 3, k: 1, c: 2, x: 2, N: 729 }
   ],
-
+ 
   // LEVEL 3: b^x * b^(cx+n) = N
   level3Pool: [
     { b: 2, c: 2, n: 2, x: 2, N: 256 },
@@ -261,7 +263,7 @@ exponentProperties: {
     { b: 3, c: 3, n: 3, x: 1, N: 2187 },
     { b: 4, c: 2, n: 2, x: 1, N: 1024 }
   ],
-
+ 
   generateProblem(difficulty) {
     const pool = this['level' + difficulty + 'Pool'];
     const chosen = pool[Math.floor(Math.random() * pool.length)];
@@ -272,21 +274,27 @@ exponentProperties: {
     const hasC = difficulty === 2;
     const hasN = difficulty === 3;
     const secondBase = k !== null ? Math.pow(b, k) : null;
-
-    let prompt;
-    if (hasN) {prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + b + '^(' + c + 'x+' + n + ') = ' + N;
-    } else if (hasC) {prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + secondBase + '^(' + c + 'x) = ' + N;
-    } else {prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + secondBase + '^x = ' + N;
+ 
+    let prompt, latex;
+    if (hasN) {
+      prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + b + '^(' + c + 'x+' + n + ') = ' + N;
+      latex = b + '^x \\times ' + b + '^{' + c + 'x+' + n + '} = ' + N;
+    } else if (hasC) {
+      prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + secondBase + '^(' + c + 'x) = ' + N;
+      latex = b + '^x \\times ' + secondBase + '^{' + c + 'x} = ' + N;
+    } else {
+      prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + secondBase + '^x = ' + N;
+      latex = b + '^x \\times ' + secondBase + '^{x} = ' + N;
     }
-
-    return { b, k, c, n, x, secondBase, N, hasC, hasN, prompt };},
-
+ 
+    return { b, k, c, n, x, secondBase, N, hasC, hasN, prompt, latex };},
+ 
   correctAnswer(p) {return p.x;},
-
+ 
   distractors(p, answer) {
     const set = new Set([answer]);
     let candidates;
-
+ 
     if (p.hasN) {
       // exponent = (1+c)x + n ; wrong answer if student ignores n, or off-by-one
       const m = 1 + p.c;
@@ -296,13 +304,13 @@ exponentProperties: {
       const m = p.hasC ? 1 + p.k * p.c : 1 + p.k;
       const ignoredKC = Math.round((m * p.x) / 2);
       candidates = [ignoredKC, answer + 1, answer - 1, answer + 2, answer + m];}
-
+ 
     const out = [];
     for (const cand of candidates) {
       if (cand > 0 && !set.has(cand)) { set.add(cand); out.push(cand); }
       if (out.length === 3) break;}
     return out;},
-
+ 
   explain(p, answer) {
     if (p.hasN) {
       const m = 1 + p.c;
