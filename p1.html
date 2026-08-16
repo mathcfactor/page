@@ -277,15 +277,15 @@ exponentProperties: {
  
     let prompt, latex;
     if (hasN) {
-      prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + b + '^(' + c + 'x+' + n + ') = ' + N;
+      prompt = 'Find the value of x:';
       latex = b + '^x \\times ' + b + '^{' + c + 'x+' + n + '} = ' + N;
-    } else if (hasC) {
-      prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + secondBase + '^(' + c + 'x) = ' + N;
+      } else if (hasC) {
+      prompt = 'Find the value of x:';
       latex = b + '^x \\times ' + secondBase + '^{' + c + 'x} = ' + N;
     } else {
-      prompt = 'Find the value of x: ' + b + '^x \u00d7 ' + secondBase + '^x = ' + N;
+      prompt = 'Find the value of x:';
       latex = b + '^x \\times ' + secondBase + '^{x} = ' + N;
-    }
+      }
  
     return { b, k, c, n, x, secondBase, N, hasC, hasN, prompt, latex };},
  
@@ -342,8 +342,16 @@ function newProblem() {
   practiceAnswer = Math.round(currentGenerator.correctAnswer(currentProblem));
   practiceLocked = false;
 
-  document.getElementById('prompt').textContent = currentProblem.prompt;
-  document.getElementById('level').textContent = difficulty;
+document.getElementById('prompt').textContent = currentProblem.prompt;
+const eqEl = document.getElementById('promptEquation');
+if (currentProblem.latex) {
+  eqEl.style.display = 'block';
+  renderKatex('promptEquation', currentProblem.latex);
+} else {
+  eqEl.style.display = 'none';
+  eqEl.innerHTML = '';
+}
+document.getElementById('level').textContent = difficulty;
   document.getElementById('feedback').textContent = '';
   document.getElementById('explanation').style.display = 'none';
 
