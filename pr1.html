@@ -201,9 +201,9 @@ const generators = {
 
 /* ---------- Level -> eligible propertyTypes ---------- */
 const levelMap = {
-  1: ['additionProperties', 'exponentProperties'],
-  2: ['additionProperties', 'exponentProperties'],
-  3: ['additionProperties', 'exponentProperties']};
+  1: ['additionProperties', 'exponentProperties', 'logProperties'],
+  2: ['additionProperties', 'exponentProperties', 'logProperties'],
+  3: ['additionProperties', 'exponentProperties', 'logProperties']};
 
 const QUESTIONS_PER_LEVEL = 10;
 const LETTERS = ['A','B','C','D','E'];
@@ -221,7 +221,8 @@ function pickGenerator(level) {
 function buildQuestion(level) {
   const generator = pickGenerator(level);
   const problem = generator.generateProblem(level);
-  const answer = Math.round(generator.correctAnswer(problem));
+  const rawAnswer = generator.correctAnswer(problem);
+  const answer = typeof rawAnswer === 'number' ? Math.round(rawAnswer) : rawAnswer;
   const wrongs = generator.distractors(problem, answer);
   const options = [{ val: answer, correct: true }, ...wrongs.map(v => ({ val: v, correct: false }))];
   for (let i = options.length - 1; i > 0; i--) {
@@ -248,15 +249,19 @@ function renderQuestion() {
 
   const container = document.getElementById('choices');
   container.innerHTML = '';
-  q.options.forEach((opt, i) => {
+    q.options.forEach((opt, i) => {
     const row = document.createElement('div');
     row.className = 'choice-row';
     const badge = document.createElement('div');
     badge.className = 'badge';
     badge.textContent = LETTERS[i];
     const label = document.createElement('div');
-    label.textContent = opt.val;
     label.style.cssText = 'font-size:18px; color:#002C64;';
+    if (typeof opt.val === 'string' && opt.val.includes('\\')) {
+      katex.render(opt.val, label, { throwOnError: false });
+    } else {
+      label.textContent = opt.val;
+    }
     row.appendChild(badge);
     row.appendChild(label);
 
