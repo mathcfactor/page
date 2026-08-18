@@ -45,10 +45,7 @@ function renderKatex(id, latex) {
 
 /* ---------- Generators (same interface as p1.html) ---------- */
 const generators = {
-  additionProperties: {pools: {
-      1: [[1,10],[1,20],[3,10],[5,20],[1,30]],
-      2: [[1,50],[2,50],[1,40],[10,40],[5,50]],
-      3: [[1,100],[2,60],[1,80],[20,80],[15,90]]},
+  additionProperties: {pools: {1: [[1,10],[1,20],[3,10],[5,20],[1,30]],2: [[1,50],[2,50],[1,40],[10,40],[5,50]],3: [[1,100],[2,60],[1,80],[20,80],[15,90]]},
     generateProblem(difficulty) {
       const pool = this.pools[difficulty];
       const [start, end] = pool[Math.floor(Math.random() * pool.length)];
@@ -68,31 +65,11 @@ const generators = {
         '. There are ' + n + ' numbers, forming ' + (n/2) + ' pairs. Sum = ' + (n/2) +
         ' &times; ' + (p.start + p.end) + ' = ' + answer + '.';}},
 
-  exponentProperties: {level1Pool: [
-      { b: 2, k: 2, x: 2, N: 64 },
-      { b: 2, k: 2, x: 3, N: 512 },
-      { b: 2, k: 3, x: 2, N: 256 },
-      { b: 3, k: 2, x: 2, N: 729 }],
-    level2Pool: [
-      { b: 2, k: 1, c: 2, x: 2, N: 64 },
-      { b: 2, k: 1, c: 2, x: 3, N: 512 },
-      { b: 2, k: 1, c: 3, x: 2, N: 256 },
-      { b: 2, k: 2, c: 2, x: 2, N: 1024 },
-      { b: 3, k: 1, c: 2, x: 2, N: 729 }],
-    level3Pool: [
-      { b: 2, c: 2, n: 2, x: 2, N: 256 },
-      { b: 2, c: 2, n: 3, x: 2, N: 512 },
-      { b: 2, c: 2, n: 4, x: 1, N: 128 },
-      { b: 2, c: 2, n: 4, x: 2, N: 1024 },
-      { b: 2, c: 3, n: 2, x: 2, N: 1024 },
-      { b: 2, c: 3, n: 3, x: 1, N: 128 },
-      { b: 2, c: 3, n: 4, x: 1, N: 256 },
-      { b: 3, c: 2, n: 2, x: 1, N: 243 },
-      { b: 3, c: 2, n: 3, x: 1, N: 729 },
-      { b: 3, c: 2, n: 4, x: 1, N: 2187 },
-      { b: 3, c: 3, n: 2, x: 1, N: 729 },
-      { b: 3, c: 3, n: 3, x: 1, N: 2187 },
-      { b: 4, c: 2, n: 2, x: 1, N: 1024 }],
+  exponentProperties: {level1Pool: [{ b: 2, k: 2, x: 2, N: 64 },{ b: 2, k: 2, x: 3, N: 512 },{ b: 2, k: 3, x: 2, N: 256 },{ b: 3, k: 2, x: 2, N: 729 }],
+    level2Pool: [{ b: 2, k: 1, c: 2, x: 2, N: 64 },{ b: 2, k: 1, c: 2, x: 3, N: 512 },{ b: 2, k: 1, c: 3, x: 2, N: 256 },{ b: 2, k: 2, c: 2, x: 2, N: 1024 },{ b: 3, k: 1, c: 2, x: 2, N: 729 }],
+    level3Pool: [{ b: 2, c: 2, n: 2, x: 2, N: 256 },{ b: 2, c: 2, n: 3, x: 2, N: 512 },{ b: 2, c: 2, n: 4, x: 1, N: 128 },{ b: 2, c: 2, n: 4, x: 2, N: 1024 },{ b: 2, c: 3, n: 2, x: 2, N: 1024 },
+    { b: 2, c: 3, n: 3, x: 1, N: 128 },{ b: 2, c: 3, n: 4, x: 1, N: 256 },{ b: 3, c: 2, n: 2, x: 1, N: 243 },{ b: 3, c: 2, n: 3, x: 1, N: 729 },{ b: 3, c: 2, n: 4, x: 1, N: 2187 },
+    { b: 3, c: 3, n: 2, x: 1, N: 729 },{ b: 3, c: 3, n: 3, x: 1, N: 2187 },{ b: 4, c: 2, n: 2, x: 1, N: 1024 }],
     generateProblem(difficulty) {
       const pool = this['level' + difficulty + 'Pool'];
       const chosen = pool[Math.floor(Math.random() * pool.length)];
@@ -152,7 +129,75 @@ const generators = {
         return 'Rewrite \\(' + p.secondBase + '\\) as \\(' + p.b + '^' + p.k + '\\), so the equation becomes \\(' +
         p.b + '^x \\cdot ' + p.b + '^{' + p.k + 'x} = ' + p.N + '\\). Add exponents: \\(' + p.b + '^{' +
         m + 'x} = ' + p.N + ' = ' + p.b + '^{' + (m * answer) + '}\\). Matching exponents: \\(' + m +
-        'x = ' + (m * answer) + '\\), so \\(x = ' + answer + '\\).';}}};
+        'x = ' + (m * answer) + '\\), so \\(x = ' + answer + '\\).';}},
+
+  logProperties: {level1Pool: [{ b: 6, A: 12, k: 3, x: 18 },{ b: 6, A: 4, k: 2, x: 9 },{ b: 4, A: 8, k: 3, x: 8 },{ b: 10, A: 4, k: 2, x: 25 }, { b: 12, A: 8, k: 2, x: 18 }],
+  level2Pool: [{ b: 6, c: 2, A: 24, k: 3, x: 3 },{ b: 10, c: 2, A: 25, k: 2, x: 2 },{ b: 12, c: 2, A: 36, k: 2, x: 2 },{ b: 6, c: 3, A: 27, k: 3, x: 2 },{ b: 6, c: 2, A: 9, k: 2, x: 2 }],
+  level3Pool: [{ b: 2, m: 3, A: 16, j: 4, k: 4, coeff: 4, root: 3, radicand: 4,wrongSkip: 1, wrongSign: '32\\sqrt[3]{2}', wrongSplit: '2\\sqrt[3]{16}' },
+    { b: 3, m: 2, A: 27, j: 3, k: 5, coeff: 27, root: 2, radicand: 3,wrongSkip: 9, wrongSign: '81\\sqrt{3}', wrongSplit: '9\\sqrt{3}' },
+    { b: 2, m: 2, A: 32, j: 5, k: 6, coeff: 8, root: 2, radicand: 2,wrongSkip: 2, wrongSign: '32\\sqrt{2}', wrongSplit: '4\\sqrt{2}' },
+    { b: 5, m: 2, A: 125, j: 3, k: 4, coeff: 25, root: 2, radicand: 5,wrongSkip: 5, wrongSign: '125\\sqrt{5}', wrongSplit: '5\\sqrt{5}' },
+    { b: 3, m: 3, A: 81, j: 4, k: 3, coeff: 3, root: 3, radicand: 9,wrongSkip: 1, wrongSign: '9\\sqrt[3]{9}', wrongSplit: '\\sqrt[3]{9}' }],
+
+  generateProblem(difficulty) {
+    const pool = this['level' + difficulty + 'Pool'];
+    const chosen = pool[Math.floor(Math.random() * pool.length)];
+    let latex;
+    if (difficulty === 1) {
+      latex = '\\log_{' + chosen.b + '}x + \\log_{' + chosen.b + '}' + chosen.A + ' = ' + chosen.k;
+    } else if (difficulty === 2) {
+      latex = chosen.c + '\\log_{' + chosen.b + '}x + \\log_{' + chosen.b + '}' + chosen.A + ' = ' + chosen.k;
+    } else {
+      const bm = Math.pow(chosen.b, chosen.m);
+      latex = '\\log_{' + chosen.b + '}x + \\log_{' + bm + '}' + chosen.A + ' = ' + chosen.k;
+    }
+    return { ...chosen, difficulty, prompt: 'Find the value of x:', latex };},
+
+  correctAnswer(p) {
+    if (p.difficulty === 3) {
+      const radStr = (p.root === 2 ? '\\sqrt{' : '\\sqrt[3]{') + p.radicand + '}';
+      return p.coeff + radStr;
+    }
+    return p.x;},
+
+  distractors(p, answer) {
+    if (p.difficulty === 1) {
+      return [
+        Math.round(Math.pow(p.b, p.k) - p.A),
+        Math.round(p.A - Math.pow(p.b, p.k)),
+        Math.round(p.x + p.A)];}
+    if (p.difficulty === 2) {
+      const xc = Math.pow(p.x, p.c);
+      return [
+        Math.round(xc),
+        Math.round(p.x + 1),
+        Math.round((Math.pow(p.b, p.k) - p.A) / p.c)];}
+    return [p.wrongSkip, p.wrongSign, p.wrongSplit];},
+
+  explain(p, answer) {
+    if (p.difficulty === 1) {
+      return 'Combine using the product rule: \\(\\log_{' + p.b + '}(' + p.A + 'x) = ' + p.k +
+        '\\). Convert to exponential form: \\(' + p.A + 'x = ' + p.b + '^{' + p.k + '} = ' +
+        Math.pow(p.b, p.k) + '\\). Solving: \\(x = ' + p.x + '\\).';}
+    if (p.difficulty === 2) {
+      return 'Apply the power rule first: \\(' + p.c + '\\log_{' + p.b + '}x = \\log_{' + p.b +
+        '}x^{' + p.c + '}\\). Now combine: \\(\\log_{' + p.b + '}(' + p.A + 'x^{' + p.c + '}) = ' +
+        p.k + '\\). Convert: \\(' + p.A + 'x^{' + p.c + '} = ' + p.b + '^{' + p.k + '} = ' +
+        Math.pow(p.b, p.k) + '\\), so \\(x^{' + p.c + '} = ' + Math.pow(p.x, p.c) + '\\), giving \\(x = ' + p.x + '\\).';}
+    const bm = Math.pow(p.b, p.m);
+    const frac = p.j + '/' + p.m;
+    const radStr = (p.root === 2 ? '\\sqrt{' : '\\sqrt[3]{') + p.radicand + '}';
+    return 'Since \\(' + bm + ' = ' + p.b + '^{' + p.m + '}\\), rewrite \\(\\log_{' + bm + '}' + p.A +
+      '\\) directly in base ' + p.b + ': \\(\\log_{' + bm + '}' + p.A + ' = \\log_{' + p.b + '^{' + p.m +
+      '}}' + p.b + '^{' + p.j + '} = ' + frac + '\\). Substitute: \\(\\log_{' + p.b + '}x + ' + frac +
+      ' = ' + p.k + '\\), so \\(\\log_{' + p.b + '}x = ' + p.k + ' - ' + frac + '\\). Convert to exponential form and simplify the fractional exponent: \\(x = ' +
+      p.coeff + radStr + '\\).';}}  
+    
+    
+    
+    
+    
+    };
 
 /* ---------- Level -> eligible propertyTypes ---------- */
 const levelMap = {
