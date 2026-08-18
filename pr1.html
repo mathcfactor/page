@@ -3,6 +3,7 @@
 <head>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 
 <style>body { background: #ffffff; margin: 0; font-family: 'Open Sans', sans-serif; }
@@ -44,8 +45,7 @@ function renderKatex(id, latex) {
 
 /* ---------- Generators (same interface as p1.html) ---------- */
 const generators = {
-  additionProperties: {
-    pools: {
+  additionProperties: {pools: {
       1: [[1,10],[1,20],[3,10],[5,20],[1,30]],
       2: [[1,50],[2,50],[1,40],[10,40],[5,50]],
       3: [[1,100],[2,60],[1,80],[20,80],[15,90]]},
@@ -68,8 +68,7 @@ const generators = {
         '. There are ' + n + ' numbers, forming ' + (n/2) + ' pairs. Sum = ' + (n/2) +
         ' &times; ' + (p.start + p.end) + ' = ' + answer + '.';}},
 
-  exponentProperties: {
-    level1Pool: [
+  exponentProperties: {level1Pool: [
       { b: 2, k: 2, x: 2, N: 64 },
       { b: 2, k: 2, x: 3, N: 512 },
       { b: 2, k: 3, x: 2, N: 256 },
@@ -108,14 +107,13 @@ const generators = {
       let prompt, latex;
       if (hasN) {
         prompt = 'Find the value of x:';
-        latex = b + '^x \\times ' + b + '^{' + c + 'x+' + n + '} = ' + N;
-      } else if (hasC) {
+        latex = b + '^x \\cdot ' + b + '^{' + c + 'x+' + n + '} = ' + N;} 
+        else if (hasC) {
         prompt = 'Find the value of x:';
-        latex = b + '^x \\times ' + secondBase + '^{' + c + 'x} = ' + N;
-      } else {
+        latex = b + '^x \\cdot ' + secondBase + '^{' + c + 'x} = ' + N;} 
+        else {
         prompt = 'Find the value of x:';
-        latex = b + '^x \\times ' + secondBase + '^{x} = ' + N;
-      }
+        latex = b + '^x \\cdot ' + secondBase + '^{x} = ' + N;}
       return { b, k, c, n, x, secondBase, N, hasC, hasN, prompt, latex };},
     correctAnswer(p) { return p.x; },
     distractors(p, answer) {
@@ -124,8 +122,8 @@ const generators = {
       if (p.hasN) {
         const m = 1 + p.c;
         const ignoredN = Math.round((m * p.x + p.n) / m);
-        candidates = [ignoredN, answer + 1, answer - 1, answer + 2, p.x + p.n];
-      } else {
+        candidates = [ignoredN, answer + 1, answer - 1, answer + 2, p.x + p.n];} 
+        else {
         const m = p.hasC ? 1 + p.k * p.c : 1 + p.k;
         const ignoredKC = Math.round((m * p.x) / 2);
         candidates = [ignoredKC, answer + 1, answer - 1, answer + 2, answer + m];}
@@ -134,27 +132,27 @@ const generators = {
         if (cand > 0 && !set.has(cand)) { set.add(cand); out.push(cand); }
         if (out.length === 3) break;}
       return out;},
+
     explain(p, answer) {
-      if (p.hasN) {
+        if (p.hasN) {
         const m = 1 + p.c;
         const totalExp = m * answer + p.n;
-        return 'Combine exponents: ' + p.b + '^x \u00d7 ' + p.b + '^(' + p.c + 'x+' + p.n + ') = ' +
-          p.b + '^(' + '(1+' + p.c + ')x+' + p.n + ') = ' + p.b + '^(' + m + 'x+' + p.n + '). ' +
-          'Set equal: ' + m + 'x+' + p.n + ' = ' + totalExp + ' (since ' + p.N + ' = ' + p.b + '^' + totalExp + '). ' +
-          'Solving: x = ' + answer + '.';}
-      if (p.hasC) {
-        const m = 1 + p.k * p.c;
-        return 'Rewrite ' + p.secondBase + ' as ' + p.b + '^' + p.k + ', so the equation becomes ' +
-          p.b + '^x \u00d7 (' + p.b + '^' + p.k + ')^(' + p.c + 'x) = ' + p.N +
-          '. Apply the power rule: (' + p.b + '^' + p.k + ')^(' + p.c + 'x) = ' + p.b + '^(' + (p.k * p.c) + 'x). ' +
-          'Now add exponents: ' + p.b + '^(' + m + 'x) = ' + p.N + ' = ' + p.b + '^' + (m * answer) +
-          '. Matching exponents: ' + m + 'x = ' + (m * answer) + ', so x = ' + answer + '.';}
-      const m = 1 + p.k;
-      return 'Rewrite ' + p.secondBase + ' as ' + p.b + '^' + p.k + ', so the equation becomes ' +
-        p.b + '^x \u00d7 ' + p.b + '^(' + p.k + 'x) = ' + p.N + '. Add exponents: ' + p.b + '^(' +
-        m + 'x) = ' + p.N + ' = ' + p.b + '^' + (m * answer) + '. Matching exponents: ' + m +
-        'x = ' + (m * answer) + ', so x = ' + answer + '.';}}
-};
+        return 'Combine exponents: \\(' + p.b + '^x \\cdot ' + p.b + '^{' + p.c + 'x+' + p.n + '} = ' +
+         p.b + '^{(1+' + p.c + ')x+' + p.n + '} = ' + p.b + '^{' + m + 'x+' + p.n + '}\\). ' +
+          'Set equal: \\(' + m + 'x+' + p.n + ' = ' + totalExp + '\\) (since \\(' + p.N + ' = ' + p.b + '^{' + totalExp + '}\\)). ' +
+         'Solving: \\(x = ' + answer + '\\).';}
+         if (p.hasC) {
+         const m = 1 + p.k * p.c;
+         return 'Rewrite \\(' + p.secondBase + '\\) as \\(' + p.b + '^' + p.k + '\\), so the equation becomes \\(' +
+         p.b + '^x \\cdot (' + p.b + '^' + p.k + ')^{' + p.c + 'x} = ' + p.N + '\\). ' +
+         'Apply the power rule: \\((' + p.b + '^' + p.k + ')^{' + p.c + 'x} = ' + p.b + '^{' + (p.k * p.c) + 'x}\\). ' +
+        'Now add exponents: \\(' + p.b + '^{' + m + 'x} = ' + p.N + ' = ' + p.b + '^{' + (m * answer) + '}\\). ' +
+        'Matching exponents: \\(' + m + 'x = ' + (m * answer) + '\\), so \\(x = ' + answer + '\\).';}
+        const m = 1 + p.k;
+        return 'Rewrite \\(' + p.secondBase + '\\) as \\(' + p.b + '^' + p.k + '\\), so the equation becomes \\(' +
+        p.b + '^x \\cdot ' + p.b + '^{' + p.k + 'x} = ' + p.N + '\\). Add exponents: \\(' + p.b + '^{' +
+        m + 'x} = ' + p.N + ' = ' + p.b + '^{' + (m * answer) + '}\\). Matching exponents: \\(' + m +
+        'x = ' + (m * answer) + '\\), so \\(x = ' + answer + '\\).';}}};
 
 /* ---------- Level -> eligible propertyTypes ---------- */
 const levelMap = {
@@ -267,7 +265,8 @@ document.getElementById('reveal-btn').onclick = function() {
   const q = session[qIndex];
   const el = document.getElementById('explanation');
   el.innerHTML = q.generator.explain(q.problem, q.answer);
-  el.style.display = 'block';};
+  el.style.display = 'block';
+  renderMathInElement(el, { delimiters: [{left: '\\(', right: '\\)', display: false}] });};
 
 function resizeObserver() {
   const height = document.body.scrollHeight;
