@@ -5,8 +5,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 
-<style>
-body { background: #ffffff; margin: 0; font-family: 'Open Sans', sans-serif; }
+<style>body { background: #ffffff; margin: 0; font-family: 'Open Sans', sans-serif; }
 .choice-row { display:flex; align-items:center; gap:14px; padding:16px 18px; border:1px solid #dddddd; border-radius:14px; background:#ffffff; cursor:pointer; margin-bottom:10px; }
 .choice-row.selected { border:2px solid #002C64; }
 .choice-row.correct { border:2px solid #32CD32; }
@@ -15,45 +14,33 @@ body { background: #ffffff; margin: 0; font-family: 'Open Sans', sans-serif; }
 .check.correct { background:#32CD32; }
 @media (max-width: 450px) {
   #prompt { font-size: 16px !important; }
-  #promptEquation { font-size: 17px !important; }
-}
+  #promptEquation { font-size: 17px !important; }}
 @media (min-width: 451px) {
-  #container { max-width: 600px; margin: 0 auto; }
-}
-</style></head>
+  #container { max-width: 600px; margin: 0 auto; }}</style></head>
+
+
 <body>
 
 <div id="container" style="padding: 1.5rem 1rem;">
 
 <!-- Practice -->
 <div id="practiceStrip">
+<div style="display:flex; justify-content:space-between; align-items:center; margin: 0 0.2rem 1.2rem 0.2rem;">
+<span style="font-size:16px; color:#333333; font-weight:500;">Question <span id="qNum">1</span> of <span id="qTotal">10</span></span></div>
+<div id="prompt" style="text-align: left; font-size: 20px; font-weight: 500; color: #002C64; margin: 0 0 1rem 0; line-height: 1.5;"></div>
+<div id="promptEquation" style="text-align: left; font-size: 20px; font-weight: 500; color: #002C64; margin: 0 0 1.5rem 0; line-height: 1.5;"></div>
+<div id="choices"></div>
+<p id="feedback" style="text-align: center; font-size: 15px; margin: 0.5rem 0 1rem 0; min-height: 18px;"></p>
+<div style="display:flex; justify-content:space-between; border-top:1px solid #eeeeee; padding-top:1rem;">
+<button id="prev-btn" style="padding:12px 20px; border:1px solid #aaaaaa; border-radius:10px; background:#ffffff; cursor:pointer; color:#888888; font-size:15px;">&larr; Previous</button>
+<button id="next-btn" style="padding:12px 20px; border:none; border-radius:10px; background:#002C64; cursor:pointer; color:#ffffff; font-size:15px; font-weight:500;">Next &rarr;</button></div></div></div>
+<button id="reveal-btn" style="display:block; margin: 0 auto 1.5rem auto; padding:8px 14px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; color:#888888; font-size:13px;">Reveal explanation</button>
+<div id="explanation" style="display: none; margin-bottom: 1.5rem; padding: 1rem 1.1rem; background: #f9f9f9; border-radius: 12px; font-size: 15px; color: #555555; line-height: 1.5;"></div>
 
-  <div style="display:flex; justify-content:space-between; align-items:center; margin: 0 0.2rem 1.2rem 0.2rem;">
-    <span style="font-size:16px; color:#333333; font-weight:500;">Question <span id="qNum">1</span> of <span id="qTotal">10</span></span>
-  </div>
-
-  <div id="prompt" style="text-align: left; font-size: 20px; font-weight: 500; color: #002C64; margin: 0 0 1rem 0; line-height: 1.5;"></div>
-  <div id="promptEquation" style="text-align: left; font-size: 20px; font-weight: 500; color: #002C64; margin: 0 0 1.5rem 0; line-height: 1.5;"></div>
-
-  <div id="choices"></div>
-
-  <p id="feedback" style="text-align: center; font-size: 15px; margin: 0.5rem 0 1rem 0; min-height: 18px;"></p>
-  <button id="reveal-btn" style="display:block; margin: 0 auto 1.5rem auto; padding:8px 14px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; color:#888888; font-size:13px;">Reveal explanation</button>
-  <div id="explanation" style="display: none; margin-bottom: 1.5rem; padding: 1rem 1.1rem; background: #f9f9f9; border-radius: 12px; font-size: 15px; color: #555555; line-height: 1.5;"></div>
-
-  <div style="display:flex; justify-content:space-between; border-top:1px solid #eeeeee; padding-top:1rem;">
-    <button id="prev-btn" style="padding:12px 20px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; color:#999999; font-size:15px;">&larr; Previous</button>
-    <button id="next-btn" style="padding:12px 20px; border:none; border-radius:10px; background:#002C64; cursor:pointer; color:#ffffff; font-size:15px; font-weight:500;">Next &rarr;</button>
-  </div>
-
-</div>
-
-</div>
 
 <script>
 function renderKatex(id, latex) {
-  katex.render(latex, document.getElementById(id), { throwOnError: false, displayMode: true });
-}
+  katex.render(latex, document.getElementById(id), { throwOnError: false, displayMode: true });}
 
 /* ---------- Generators (same interface as p1.html) ---------- */
 const generators = {
@@ -173,8 +160,7 @@ const generators = {
 const levelMap = {
   1: ['additionProperties', 'exponentProperties'],
   2: ['additionProperties', 'exponentProperties'],
-  3: ['additionProperties', 'exponentProperties']
-};
+  3: ['additionProperties', 'exponentProperties']};
 
 const QUESTIONS_PER_LEVEL = 10;
 const LETTERS = ['A','B','C','D','E'];
@@ -187,8 +173,7 @@ let qIndex = 0;
 function pickGenerator(level) {
   const pool = levelMap[level];
   const propertyType = pool[Math.floor(Math.random() * pool.length)];
-  return generators[propertyType];
-}
+  return generators[propertyType];}
 
 function buildQuestion(level) {
   const generator = pickGenerator(level);
@@ -199,8 +184,7 @@ function buildQuestion(level) {
   for (let i = options.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [options[i], options[j]] = [options[j], options[i]];}
-  return { generator, problem, answer, options, selectedIndex: null };
-}
+  return { generator, problem, answer, options, selectedIndex: null };}
 
 function renderQuestion() {
   const q = session[qIndex];
@@ -211,11 +195,10 @@ function renderQuestion() {
   const eqEl = document.getElementById('promptEquation');
   if (q.problem.latex) {
     eqEl.style.display = 'block';
-    renderKatex('promptEquation', q.problem.latex);
-  } else {
+    renderKatex('promptEquation', q.problem.latex);} 
+    else {
     eqEl.style.display = 'none';
-    eqEl.innerHTML = '';
-  }
+    eqEl.innerHTML = '';}
 
   document.getElementById('feedback').textContent = '';
   document.getElementById('explanation').style.display = 'none';
@@ -237,13 +220,18 @@ function renderQuestion() {
     if (q.selectedIndex !== null) {
       if (i === q.selectedIndex) row.classList.add('selected');
       if (opt.correct) row.classList.add('correct');
-      if (opt.correct || i === q.selectedIndex) {
+            if (opt.correct) {
         const check = document.createElement('div');
-        check.className = 'check' + (opt.correct ? ' correct' : '');
+        check.className = 'check correct';
         check.innerHTML = '&#10003;';
         row.appendChild(check);
-      }
-    }
+      } else if (i === q.selectedIndex) {
+        const check = document.createElement('div');
+        check.className = 'check';
+        check.style.background = '#cc3333';
+        check.innerHTML = '&#10007;';
+        row.appendChild(check);
+      }}
 
     row.onclick = function() {
       if (q.selectedIndex !== null) return;
@@ -251,55 +239,44 @@ function renderQuestion() {
       const fb = document.getElementById('feedback');
       fb.textContent = opt.correct ? 'Correct.' : 'Not quite. Reveal the explanation to see why.';
       fb.style.color = opt.correct ? '#002C64' : '#999999';
-      renderQuestion();
-    };
-    container.appendChild(row);
-  });
+      renderQuestion();};
+    container.appendChild(row);});
 
   document.getElementById('prev-btn').disabled = qIndex === 0;
-  document.getElementById('prev-btn').style.opacity = qIndex === 0 ? '0.4' : '1';
-}
+  document.getElementById('prev-btn').style.opacity = qIndex === 0 ? '0.4' : '1';}
 
 function startLevel(level) {
   currentLevel = level;
   session = [buildQuestion(level)];
   qIndex = 0;
-  renderQuestion();
-}
+  renderQuestion();}
 
 document.getElementById('prev-btn').onclick = function() {
   if (qIndex === 0) return;
   qIndex -= 1;
-  renderQuestion();
-};
+  renderQuestion();};
 
 document.getElementById('next-btn').onclick = function() {
   if (qIndex === session.length - 1 && session.length < QUESTIONS_PER_LEVEL) {
-    session.push(buildQuestion(currentLevel));
-  }
+    session.push(buildQuestion(currentLevel));}
   if (qIndex < session.length - 1) {
     qIndex += 1;
-    renderQuestion();
-  }
-};
+    renderQuestion();}};
 
 document.getElementById('reveal-btn').onclick = function() {
   const q = session[qIndex];
   const el = document.getElementById('explanation');
   el.innerHTML = q.generator.explain(q.problem, q.answer);
-  el.style.display = 'block';
-};
+  el.style.display = 'block';};
 
 function resizeObserver() {
   const height = document.body.scrollHeight;
-  window.top.postMessage({ type: 'resize', height }, '*');
-}
+  window.top.postMessage({ type: 'resize', height }, '*');}
 const observer = new ResizeObserver(resizeObserver);
 observer.observe(document.body);
 
 let readyInterval = setInterval(() => {
-  window.top.postMessage('ready', '*');
-}, 300);
+  window.top.postMessage('ready', '*');}, 300);
 
 /* ---------- Read level from URL and start directly ---------- */
 const params = new URLSearchParams(window.location.search);
