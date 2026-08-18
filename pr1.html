@@ -191,8 +191,53 @@ const generators = {
       '\\) directly in base ' + p.b + ': \\(\\log_{' + bm + '}' + p.A + ' = \\log_{' + p.b + '^{' + p.m +
       '}}' + p.b + '^{' + p.j + '} = ' + frac + '\\). Substitute: \\(\\log_{' + p.b + '}x + ' + frac +
       ' = ' + p.k + '\\), so \\(\\log_{' + p.b + '}x = ' + p.k + ' - ' + frac + '\\). Convert to exponential form and simplify the fractional exponent: \\(x = ' +
-      p.coeff + radStr + '\\).';}}  
-    
+      p.coeff + radStr + '\\).';}},
+
+ multiplicationProperties: {level1Pool: [{ a: 3, b: 4 },{ a: 5, b: 6 },{ a: 4, b: 9 },{ a: 6, b: -2 },{ a: 8, b: 7 }],
+  level2Pool: [{ c: 2, m: 6, N: 48 },{ c: 7, m: 3, N: 63 },{ c: 2, m: 3, N: 30 },{ c: 3, m: 2, N: 42 },{ c: 2, m: 5, N: 90 }],
+  level3Pool: [{ c: 4, d1: 3, d2: 6, N: 108, v1: 'x', v2: 'y' },{ c: 2, d1: 3, d2: 7, N: 100, v1: 'm', v2: 'n' },{ c: 3, d1: 2, d2: 5, N: 42, v1: 'a', v2: 'b' },{ c: 3, d1: 1, d2: 3, N: 72, v1: 'a', v2: 'b' },{ c: 4, d1: 1, d2: 2, N: 96, v1: 'a', v2: 'b' }],
+
+  generateProblem(difficulty) {
+    const pool = this['level' + difficulty + 'Pool'];
+    const chosen = pool[Math.floor(Math.random() * pool.length)];
+    if (difficulty === 1) {
+      const { a, b } = chosen;
+      const sign = b >= 0 ? '+ ' + b : '\u2212 ' + Math.abs(b);
+      return { ...chosen, difficulty, prompt: 'Find the value of k:', latex: a + '(n ' + sign + ') = ' + a + 'n + k' };}
+    if (difficulty === 2) {
+      const { c, m, N } = chosen;
+      return { ...chosen, difficulty, prompt: 'Find the value of k:', given: 'xy = ' + m, latex: '(kx)(' + c + 'y) = ' + N };}
+    const { c, d1, d2, N, v1, v2 } = chosen;
+    return { ...chosen, difficulty, prompt: 'Find the value of ' + v1 + v2 + ':', latex: '(' + c + v1 + ')(' + d1 + v2 + ') + (' + c + v1 + ')(' + d2 + v2 + ') = ' + N };},
+
+  correctAnswer(p) {
+    if (p.difficulty === 1) return p.a * p.b;
+    if (p.difficulty === 2) return p.N / (p.c * p.m);
+    return p.N / (p.c * (p.d1 + p.d2));},
+
+  distractors(p, answer) {
+    const set = new Set([answer]);
+    let candidates;
+    if (p.difficulty === 1) { candidates = [p.b, p.a + p.b, answer + p.a];}
+    else if (p.difficulty === 2) { candidates = [Math.round(p.N / p.c), Math.round(p.N / p.m), Math.round(p.N / (p.c + p.m))];}
+    else { candidates = [Math.round(p.N / (p.d1 + p.d2)), Math.round(p.N / (p.c * p.d2)), Math.round(p.N / (p.c * p.d1 * p.d2))];}
+    const out = [];
+    for (const cand of candidates) {
+      if (cand > 0 && Number.isFinite(cand) && !set.has(cand)) { set.add(cand); out.push(cand);}
+      if (out.length === 3) break;}
+    return out;},
+
+  explain(p, answer) {
+    if (p.difficulty === 1) {
+      return 'The ' + p.a + ' outside the parentheses multiplies every term inside: \\(' + p.a + '(n) + ' + p.a + '(' + p.b +
+        ')\\). The right side already shows \\(' + p.a + 'n\\), so the remaining piece is \\(' + p.a + ' \\times ' + p.b + ' = ' + answer + '\\).';}
+    if (p.difficulty === 2) {
+      return 'Regroup the factors: \\((kx)(' + p.c + 'y) = ' + p.c + 'k(xy) = ' + p.c + 'k(' + p.m + ') = ' + (p.c * p.m) +
+        'k\\). Setting this equal to \\(' + p.N + '\\) gives \\(' + (p.c * p.m) + 'k = ' + p.N + '\\), so \\(k = ' + answer + '\\).';}
+    const sum = p.d1 + p.d2;
+    return 'Factor out the shared ' + p.c + p.v1 + ': \\(' + p.c + p.v1 + '(' + p.d1 + p.v2 + ' + ' + p.d2 + p.v2 + ') = ' + p.c + p.v1 +
+      '(' + sum + p.v2 + ') = ' + (p.c * sum) + p.v1 + p.v2 + '\\). Setting this equal to \\(' + p.N + '\\) gives \\(' + (p.c * sum) +
+      p.v1 + p.v2 + ' = ' + p.N + '\\), so \\(' + p.v1 + p.v2 + ' = ' + answer + '\\).';}},   
     
     
     
