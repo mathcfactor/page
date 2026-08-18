@@ -193,7 +193,8 @@ const generators = {
       ' = ' + p.k + '\\), so \\(\\log_{' + p.b + '}x = ' + p.k + ' - ' + frac + '\\). Convert to exponential form and simplify the fractional exponent: \\(x = ' +
       p.coeff + radStr + '\\).';}},
 
- multiplicationProperties: {level1Pool: [{ a: 3, b: 4 },{ a: 5, b: 6 },{ a: 4, b: 9 },{ a: 6, b: -2 },{ a: 8, b: 7 }],
+multiplicationProperties: {
+  level1Pool: [{ a: 3, b: 4 },{ a: 5, b: 6 },{ a: 4, b: 9 },{ a: 6, b: -2 },{ a: 8, b: 7 }],
   level2Pool: [{ c: 2, m: 6, N: 48 },{ c: 7, m: 3, N: 63 },{ c: 2, m: 3, N: 30 },{ c: 3, m: 2, N: 42 },{ c: 2, m: 5, N: 90 }],
   level3Pool: [{ c: 4, d1: 3, d2: 6, N: 108, v1: 'x', v2: 'y' },{ c: 2, d1: 3, d2: 7, N: 100, v1: 'm', v2: 'n' },{ c: 3, d1: 2, d2: 5, N: 42, v1: 'a', v2: 'b' },{ c: 3, d1: 1, d2: 3, N: 72, v1: 'a', v2: 'b' },{ c: 4, d1: 1, d2: 2, N: 96, v1: 'a', v2: 'b' }],
 
@@ -237,7 +238,7 @@ const generators = {
     const sum = p.d1 + p.d2;
     return 'Factor out the shared ' + p.c + p.v1 + ': \\(' + p.c + p.v1 + '(' + p.d1 + p.v2 + ' + ' + p.d2 + p.v2 + ') = ' + p.c + p.v1 +
       '(' + sum + p.v2 + ') = ' + (p.c * sum) + p.v1 + p.v2 + '\\). Setting this equal to \\(' + p.N + '\\) gives \\(' + (p.c * sum) +
-      p.v1 + p.v2 + ' = ' + p.N + '\\), so \\(' + p.v1 + p.v2 + ' = ' + answer + '\\).';}},   
+      p.v1 + p.v2 + ' = ' + p.N + '\\), so \\(' + p.v1 + p.v2 + ' = ' + answer + '\\).';}}, 
     
     
     
@@ -246,9 +247,9 @@ const generators = {
 
 /* ---------- Level -> eligible propertyTypes ---------- */
 const levelMap = {
-  1: ['additionProperties', 'exponentProperties', 'logProperties'],
-  2: ['additionProperties', 'exponentProperties', 'logProperties'],
-  3: ['additionProperties', 'exponentProperties', 'logProperties']};
+  1: ['additionProperties', 'exponentProperties', 'logProperties', 'multiplicationProperties'],
+  2: ['additionProperties', 'exponentProperties', 'logProperties', 'multiplicationProperties'],
+  3: ['additionProperties', 'exponentProperties', 'logProperties', 'multiplicationProperties']};
 
 const QUESTIONS_PER_LEVEL = 10;
 const LETTERS = ['A','B','C','D','E'];
