@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+
+<style>
+body { background: #ffffff; margin: 0; font-family: 'Open Sans', sans-serif; }
+.choice-row { display:flex; align-items:center; gap:14px; padding:16px 18px; border:1px solid #dddddd; border-radius:14px; background:#ffffff; cursor:pointer; margin-bottom:10px; }
+.choice-row.selected { border:2px solid #002C64; }
+.choice-row.correct { border:2px solid #32CD32; }
+.badge { flex:0 0 auto; width:32px; height:32px; border-radius:8px; background:#002C64; color:#ffffff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:15px; }
+.check { margin-left:auto; width:26px; height:26px; border-radius:50%; background:#002C64; color:#ffffff; display:flex; align-items:center; justify-content:center; font-size:14px; }
+.check.correct { background:#32CD32; }
+@media (max-width: 450px) {
+  #prompt { font-size: 16px !important; }
+  #promptEquation { font-size: 17px !important; }
+}
+@media (min-width: 451px) {
+  #container { max-width: 600px; margin: 0 auto; }
+}
+</style></head>
+<body>
+
+<div id="container" style="padding: 1.5rem 1rem;">
+
+<!-- Practice -->
+<div id="practiceStrip">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin: 0 0.2rem 1.2rem 0.2rem;">
+    <span style="font-size:16px; color:#333333; font-weight:500;">Question <span id="qNum">1</span> of <span id="qTotal">10</span></span>
+  </div>
+
+  <div id="prompt" style="text-align: left; font-size: 20px; font-weight: 500; color: #002C64; margin: 0 0 1rem 0; line-height: 1.5;"></div>
+  <div id="promptEquation" style="text-align: left; font-size: 20px; font-weight: 500; color: #002C64; margin: 0 0 1.5rem 0; line-height: 1.5;"></div>
+
+  <div id="choices"></div>
+
+  <p id="feedback" style="text-align: center; font-size: 15px; margin: 0.5rem 0 1rem 0; min-height: 18px;"></p>
+  <button id="reveal-btn" style="display:block; margin: 0 auto 1.5rem auto; padding:8px 14px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; color:#888888; font-size:13px;">Reveal explanation</button>
+  <div id="explanation" style="display: none; margin-bottom: 1.5rem; padding: 1rem 1.1rem; background: #f9f9f9; border-radius: 12px; font-size: 15px; color: #555555; line-height: 1.5;"></div>
+
+  <div style="display:flex; justify-content:space-between; border-top:1px solid #eeeeee; padding-top:1rem;">
+    <button id="prev-btn" style="padding:12px 20px; border:1px solid #dddddd; border-radius:10px; background:#ffffff; cursor:pointer; color:#999999; font-size:15px;">&larr; Previous</button>
+    <button id="next-btn" style="padding:12px 20px; border:none; border-radius:10px; background:#002C64; cursor:pointer; color:#ffffff; font-size:15px; font-weight:500;">Next &rarr;</button>
+  </div>
+
+</div>
+
+</div>
+
+<script>
+function renderKatex(id, latex) {
+  katex.render(latex, document.getElementById(id), { throwOnError: false, displayMode: true });
+}
+
+/* ---------- Generators (same interface as p1.html) ---------- */
+const generators = {
+  additionProperties: {
+    pools: {
+      1: [[1,10],[1,20],[3,10],[5,20],[1,30]],
+      2: [[1,50],[2,50],[1,40],[10,40],[5,50]],
+      3: [[1,100],[2,60],[1,80],[20,80],[15,90]]},
+    generateProblem(difficulty) {
+      const pool = this.pools[difficulty];
+      const [start, end] = pool[Math.floor(Math.random() * pool.length)];
+      return { start, end, prompt: 'Find the sum of the consecutive integers ' + start + ' to ' + end };},
+    correctAnswer(p) {
+      const n = p.end - p.start + 1;
+      return (n / 2) * (p.start + p.end);},
+    distractors(p, answer) {
+      const n = p.end - p.start + 1;
+      return [
+        Math.round(((n - 1) / 2) * (p.start + p.end)),
+        Math.round(p.start + p.end),
+        Math.round(answer + (p.start + p.end) / 2)];},
+    explain(p, answer) {
+      const n = p.end - p.start + 1;
+      return 'Pair the first and last: ' + p.start + ' + ' + p.end + ' = ' + (p.start + p.end) +
+        '. There are ' + n + ' numbers, forming ' + (n/2) + ' pairs. Sum = ' + (n/2) +
+        ' &times; ' + (p.start + p.end) + ' = ' + answer + '.';}},
+
+  exponentProperties: {
+    level1Pool: [
+      { b: 2, k: 2, x: 2, N: 64 },
+      { b: 2, k: 2, x: 3, N: 512 },
+      { b: 2, k: 3, x: 2, N: 256 },
+      { b: 3, k: 2, x: 2, N: 729 }],
+    level2Pool: [
+      { b: 2, k: 1, c: 2, x: 2, N: 64 },
+      { b: 2, k: 1, c: 2, x: 3, N: 512 },
+      { b: 2, k: 1, c: 3, x: 2, N: 256 },
+      { b: 2, k: 2, c: 2, x: 2, N: 1024 },
+      { b: 3, k: 1, c: 2, x: 2, N: 729 }],
+    level3Pool: [
+      { b: 2, c: 2, n: 2, x: 2, N: 256 },
+      { b: 2, c: 2, n: 3, x: 2, N: 512 },
+      { b: 2, c: 2, n: 4, x: 1, N: 128 },
+      { b: 2, c: 2, n: 4, x: 2, N: 1024 },
+      { b: 2, c: 3, n: 2, x: 2, N: 1024 },
+      { b: 2, c: 3, n: 3, x: 1, N: 128 },
+      { b: 2, c: 3, n: 4, x: 1, N: 256 },
+      { b: 3, c: 2, n: 2, x: 1, N: 243 },
+      { b: 3, c: 2, n: 3, x: 1, N: 729 },
+      { b: 3, c: 2, n: 4, x: 1, N: 2187 },
+      { b: 3, c: 3, n: 2, x: 1, N: 729 },
+      { b: 3, c: 3, n: 3, x: 1, N: 2187 },
+      { b: 4, c: 2, n: 2, x: 1, N: 1024 }],
+    generateProblem(difficulty) {
+      const pool = this['level' + difficulty + 'Pool'];
+      const chosen = pool[Math.floor(Math.random() * pool.length)];
+      const { b, x, N } = chosen;
+      const k = chosen.k ?? null;
+      const c = chosen.c ?? null;
+      const n = chosen.n ?? null;
+      const hasC = difficulty === 2;
+      const hasN = difficulty === 3;
+      const secondBase = k !== null ? Math.pow(b, k) : null;
+
+      let prompt, latex;
+      if (hasN) {
+        prompt = 'Find the value of x:';
+        latex = b + '^x \\times ' + b + '^{' + c + 'x+' + n + '} = ' + N;
+      } else if (hasC) {
+        prompt = 'Find the value of x:';
+        latex = b + '^x \\times ' + secondBase + '^{' + c + 'x} = ' + N;
+      } else {
+        prompt = 'Find the value of x:';
+        latex = b + '^x \\times ' + secondBase + '^{x} = ' + N;
+      }
+      return { b, k, c, n, x, secondBase, N, hasC, hasN, prompt, latex };},
+    correctAnswer(p) { return p.x; },
+    distractors(p, answer) {
+      const set = new Set([answer]);
+      let candidates;
+      if (p.hasN) {
+        const m = 1 + p.c;
+        const ignoredN = Math.round((m * p.x + p.n) / m);
+        candidates = [ignoredN, answer + 1, answer - 1, answer + 2, p.x + p.n];
+      } else {
+        const m = p.hasC ? 1 + p.k * p.c : 1 + p.k;
+        const ignoredKC = Math.round((m * p.x) / 2);
+        candidates = [ignoredKC, answer + 1, answer - 1, answer + 2, answer + m];}
+      const out = [];
+      for (const cand of candidates) {
+        if (cand > 0 && !set.has(cand)) { set.add(cand); out.push(cand); }
+        if (out.length === 3) break;}
+      return out;},
+    explain(p, answer) {
+      if (p.hasN) {
+        const m = 1 + p.c;
+        const totalExp = m * answer + p.n;
+        return 'Combine exponents: ' + p.b + '^x \u00d7 ' + p.b + '^(' + p.c + 'x+' + p.n + ') = ' +
+          p.b + '^(' + '(1+' + p.c + ')x+' + p.n + ') = ' + p.b + '^(' + m + 'x+' + p.n + '). ' +
+          'Set equal: ' + m + 'x+' + p.n + ' = ' + totalExp + ' (since ' + p.N + ' = ' + p.b + '^' + totalExp + '). ' +
+          'Solving: x = ' + answer + '.';}
+      if (p.hasC) {
+        const m = 1 + p.k * p.c;
+        return 'Rewrite ' + p.secondBase + ' as ' + p.b + '^' + p.k + ', so the equation becomes ' +
+          p.b + '^x \u00d7 (' + p.b + '^' + p.k + ')^(' + p.c + 'x) = ' + p.N +
+          '. Apply the power rule: (' + p.b + '^' + p.k + ')^(' + p.c + 'x) = ' + p.b + '^(' + (p.k * p.c) + 'x). ' +
+          'Now add exponents: ' + p.b + '^(' + m + 'x) = ' + p.N + ' = ' + p.b + '^' + (m * answer) +
+          '. Matching exponents: ' + m + 'x = ' + (m * answer) + ', so x = ' + answer + '.';}
+      const m = 1 + p.k;
+      return 'Rewrite ' + p.secondBase + ' as ' + p.b + '^' + p.k + ', so the equation becomes ' +
+        p.b + '^x \u00d7 ' + p.b + '^(' + p.k + 'x) = ' + p.N + '. Add exponents: ' + p.b + '^(' +
+        m + 'x) = ' + p.N + ' = ' + p.b + '^' + (m * answer) + '. Matching exponents: ' + m +
+        'x = ' + (m * answer) + ', so x = ' + answer + '.';}}
+};
+
+/* ---------- Level -> eligible propertyTypes ---------- */
+const levelMap = {
+  1: ['additionProperties', 'exponentProperties'],
+  2: ['additionProperties', 'exponentProperties'],
+  3: ['additionProperties', 'exponentProperties']
+};
+
+const QUESTIONS_PER_LEVEL = 10;
+const LETTERS = ['A','B','C','D','E'];
+
+/* ---------- Session state ---------- */
+let currentLevel = 1;
+let session = [];
+let qIndex = 0;
+
+function pickGenerator(level) {
+  const pool = levelMap[level];
+  const propertyType = pool[Math.floor(Math.random() * pool.length)];
+  return generators[propertyType];
+}
+
+function buildQuestion(level) {
+  const generator = pickGenerator(level);
+  const problem = generator.generateProblem(level);
+  const answer = Math.round(generator.correctAnswer(problem));
+  const wrongs = generator.distractors(problem, answer);
+  const options = [{ val: answer, correct: true }, ...wrongs.map(v => ({ val: v, correct: false }))];
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]];}
+  return { generator, problem, answer, options, selectedIndex: null };
+}
+
+function renderQuestion() {
+  const q = session[qIndex];
+  document.getElementById('qNum').textContent = qIndex + 1;
+  document.getElementById('qTotal').textContent = QUESTIONS_PER_LEVEL;
+  document.getElementById('prompt').textContent = q.problem.prompt;
+
+  const eqEl = document.getElementById('promptEquation');
+  if (q.problem.latex) {
+    eqEl.style.display = 'block';
+    renderKatex('promptEquation', q.problem.latex);
+  } else {
+    eqEl.style.display = 'none';
+    eqEl.innerHTML = '';
+  }
+
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('explanation').style.display = 'none';
+
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const row = document.createElement('div');
+    row.className = 'choice-row';
+    const badge = document.createElement('div');
+    badge.className = 'badge';
+    badge.textContent = LETTERS[i];
+    const label = document.createElement('div');
+    label.textContent = opt.val;
+    label.style.cssText = 'font-size:18px; color:#002C64;';
+    row.appendChild(badge);
+    row.appendChild(label);
+
+    if (q.selectedIndex !== null) {
+      if (i === q.selectedIndex) row.classList.add('selected');
+      if (opt.correct) row.classList.add('correct');
+      if (opt.correct || i === q.selectedIndex) {
+        const check = document.createElement('div');
+        check.className = 'check' + (opt.correct ? ' correct' : '');
+        check.innerHTML = '&#10003;';
+        row.appendChild(check);
+      }
+    }
+
+    row.onclick = function() {
+      if (q.selectedIndex !== null) return;
+      q.selectedIndex = i;
+      const fb = document.getElementById('feedback');
+      fb.textContent = opt.correct ? 'Correct.' : 'Not quite. Reveal the explanation to see why.';
+      fb.style.color = opt.correct ? '#002C64' : '#999999';
+      renderQuestion();
+    };
+    container.appendChild(row);
+  });
+
+  document.getElementById('prev-btn').disabled = qIndex === 0;
+  document.getElementById('prev-btn').style.opacity = qIndex === 0 ? '0.4' : '1';
+}
+
+function startLevel(level) {
+  currentLevel = level;
+  session = [buildQuestion(level)];
+  qIndex = 0;
+  renderQuestion();
+}
+
+document.getElementById('prev-btn').onclick = function() {
+  if (qIndex === 0) return;
+  qIndex -= 1;
+  renderQuestion();
+};
+
+document.getElementById('next-btn').onclick = function() {
+  if (qIndex === session.length - 1 && session.length < QUESTIONS_PER_LEVEL) {
+    session.push(buildQuestion(currentLevel));
+  }
+  if (qIndex < session.length - 1) {
+    qIndex += 1;
+    renderQuestion();
+  }
+};
+
+document.getElementById('reveal-btn').onclick = function() {
+  const q = session[qIndex];
+  const el = document.getElementById('explanation');
+  el.innerHTML = q.generator.explain(q.problem, q.answer);
+  el.style.display = 'block';
+};
+
+function resizeObserver() {
+  const height = document.body.scrollHeight;
+  window.top.postMessage({ type: 'resize', height }, '*');
+}
+const observer = new ResizeObserver(resizeObserver);
+observer.observe(document.body);
+
+let readyInterval = setInterval(() => {
+  window.top.postMessage('ready', '*');
+}, 300);
+
+/* ---------- Read level from URL and start directly ---------- */
+const params = new URLSearchParams(window.location.search);
+let startingLevel = parseInt(params.get('level'), 10);
+if (![1, 2, 3].includes(startingLevel)) startingLevel = 1;
+startLevel(startingLevel);
+</script>
+
+</body>
+</html>
