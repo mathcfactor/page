@@ -14,15 +14,20 @@
 .badge { flex:0 0 auto; width:32px; height:32px; border-radius:8px; background:#002C64; color:#ffffff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:15px; }
 .check { margin-left:auto; width:26px; height:26px; border-radius:50%; background:#002C64; color:#ffffff; display:flex; align-items:center; justify-content:center; font-size:14px; }
 .check.correct { background:#32CD32; }
+.level-opt:hover { background:#f5f5f5; }
 @media (max-width: 450px) {
-  #prompt { font-size: 13px !important; }
-  #promptEquation { font-size: 17px !important; }
+  #prompt { font-size: 14px !important; }
+  #promptEquation { font-size: 15px !important; }
   #qNum, #qTotal { font-size: 12px !important; }
   span:has(#qNum) { font-size: 11px !important; }
   .badge { width: 26px !important; height: 26px !important; font-size: 11px !important; }
   .choice-row { padding: 12px 14px !important; }
   .choice-row div:not(.badge) { font-size: 13px !important; }
-  #prev-btn, #next-btn { padding: 10px 14px !important; font-size: 11px !important; }}
+  #prev-btn, #next-btn { padding: 10px 14px !important; font-size: 11px !important; }
+  #level-btn { font-size: 11px !important; padding: 5px 10px !important; }
+  .level-opt { font-size: 11px !important; padding: 8px 16px !important; }
+  #explanation { font-size: 12px !important; padding: 0.8rem 0.9rem !important; }
+}
 @media (min-width: 451px) {
   #container { max-width: 600px; margin: 0 auto; }}</style></head>
 
@@ -33,8 +38,16 @@
 
 <!-- Practice -->
 <div id="practiceStrip">
-<div style="display:flex; justify-content:space-between; align-items:center; margin: 0 0.2rem 1.2rem 0.2rem;">
-<span style="font-size:16px; color:#888888; font-weight:500;">Question <span id="qNum">1</span> of <span id="qTotal">10</span></span></div>
+<div style="display:flex; justify-content:space-between; align-items:center; margin: 0 0.2rem 1.2rem 0rem;">
+<span style="font-size:16px; color:#999999; font-weight:500;">Question <span id="qNum">1</span> of <span id="qTotal">10</span></span>
+<div style="position:relative;">
+<button id="level-btn" style="padding:6px 12px; border:1px solid #dddddd; border-radius:20px; background:#ffffff; cursor:pointer; color:#888888; font-size:13px; font-weight:600;">Level <span id="levelNum">1</span> &#9662;</button>
+<div id="level-menu" style="display:none; position:absolute; right:0; top:36px; background:#ffffff; border:1px solid #dddddd; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.08); z-index:10; overflow:hidden;">
+<div class="level-opt" data-level="1" style="padding:10px 20px; cursor:pointer; font-size:14px; color:#888888;">Level 1</div>
+<div class="level-opt" data-level="2" style="padding:10px 20px; cursor:pointer; font-size:14px; color:#888888; border-top:1px solid #eeeeee;">Level 2</div>
+<div class="level-opt" data-level="3" style="padding:10px 20px; cursor:pointer; font-size:14px; color:#888888; border-top:1px solid #eeeeee;">Level 3</div>
+
+
 <div id="prompt" style="text-align: left; font-size: 20px; font-weight: 500; color: #002C64; margin: 0 0 1rem 0; line-height: 1.5;"></div>
 <div id="promptEquation" style="text-align: left; font-size: 20px; font-weight: 500; color: #002C64; margin: 0 0 1.5rem 0; line-height: 1.5;"></div>
 <div id="choices"></div>
@@ -52,25 +65,94 @@ function renderKatex(id, latex) {
 
 /* ---------- Generators (same interface as p1.html) ---------- */
 const generators = {
-  additionProperties: {pools: {1: [[1,10],[1,20],[3,10],[5,20],[1,30]],2: [[1,50],[2,50],[1,40],[10,40],[5,50]],3: [[1,100],[2,60],[1,80],[20,80],[15,90]]},
-    generateProblem(difficulty) {
-      const pool = this.pools[difficulty];
-      const [start, end] = pool[Math.floor(Math.random() * pool.length)];
-      return { start, end, prompt: 'Find the sum of the consecutive integers ' + start + ' to ' + end };},
-    correctAnswer(p) {
-      const n = p.end - p.start + 1;
-      return (n / 2) * (p.start + p.end);},
-    distractors(p, answer) {
-      const n = p.end - p.start + 1;
+  additionProperties: {pools: {1: [[1,50],[2,50],[1,40],[5,50],[1,100]],
+    2: [[2,20,'even'],[1,19,'odd'],[10,30,'even'],[1,29,'odd'],[4,40,'even']],
+    3: [[1,30,3],[1,40,4],[1,50,5],[1,60,3],[1,80,4]]},
+
+  generateProblem(difficulty) {
+    const pool = this.pools[difficulty];
+    const params = pool[Math.floor(Math.random() * pool.length)];
+
+    if (difficulty === 1) {
+      const [start, end] = params;
+      return { difficulty, start, end,
+        prompt: `What is the sum of all integers from ${start} through ${end}, inclusive?` };
+    }
+    if (difficulty === 2) {
+      const [start, end, parity] = params;
+      return { difficulty, start, end, parity,
+        prompt: `What is the sum of all ${parity} integers from ${start} through ${end}, inclusive?` };
+    }
+    const [start, end, k] = params;
+    return { difficulty, start, end, k,
+      prompt: `What is the sum of all multiples of ${k} from ${start} through ${end}, inclusive?` };
+  },
+
+  // --- helpers ---
+  boundsFor(p) {
+    if (p.difficulty === 1) return { first: p.start, last: p.end, step: 1 };
+    if (p.difficulty === 2) {
+      const wantEven = p.parity === 'even';
+      const first = (p.start % 2 === 0) === wantEven ? p.start : p.start + 1;
+      const last = (p.end % 2 === 0) === wantEven ? p.end : p.end - 1;
+      return { first, last, step: 2 };
+    }
+    const first = Math.ceil(p.start / p.k) * p.k;
+    const last = Math.floor(p.end / p.k) * p.k;
+    return { first, last, step: p.k };
+  },
+
+  correctAnswer(p) {
+    const { first, last, step } = this.boundsFor(p);
+    const n = Math.floor((last - first) / step) + 1;
+    return (n / 2) * (first + last);
+  },
+
+  distractors(p, answer) {
+    const { first, last, step } = this.boundsFor(p);
+    const n = Math.floor((last - first) / step) + 1;
+
+    if (p.difficulty === 1) {
       return [
-        Math.round(((n - 1) / 2) * (p.start + p.end)),
-        Math.round(p.start + p.end),
-        Math.round(answer + (p.start + p.end) / 2)];},
-    explain(p, answer) {
-      const n = p.end - p.start + 1;
-      return 'Pair the first and last: ' + p.start + ' + ' + p.end + ' = ' + (p.start + p.end) +
-        '. There are ' + n + ' numbers, forming ' + (n/2) + ' pairs. Sum = ' + (n/2) +
-        ' &times; ' + (p.start + p.end) + ' = ' + answer + '.';}},
+        Math.round(((n - 1) / 2) * (p.start + p.end)),   // off-by-one on count
+        Math.round(p.start + p.end),                       // forgot to multiply by pairs
+        Math.round(answer + (p.start + p.end) / 2)          // extra half-pair added
+      ];
+    }
+    if (p.difficulty === 2) {
+      const nAll = Math.floor((p.end - p.start) / 1) + 1;
+      return [
+        Math.round((nAll / 2) * (p.start + p.end)),         // forgot to filter parity
+        Math.round(answer - first),                          // off-by-one on first qualifying term
+        Math.round(answer - step)                            // off-by-one on last qualifying term
+      ];
+    }
+    return [
+      Math.round((n / 2) * ((n - 1) * step)),               // wrong step used in pairing
+      Math.round(answer - first),                            // forgot to snap start up
+      Math.round(answer + (p.end - last))                    // used raw endpoint instead of snapped last
+    ];
+  },
+
+  explain(p, answer) {
+    const { first, last, step } = this.boundsFor(p);
+    const n = Math.floor((last - first) / step) + 1;
+
+    if (p.difficulty === 1) {
+      return `Pair the first and last: ${p.start} + ${p.end} = ${p.start + p.end}. ` +
+        `There are ${n} numbers, forming ${n / 2} pairs. Sum = ${n / 2} &times; ${p.start + p.end} = ${answer}.`;
+    }
+    if (p.difficulty === 2) {
+      return `First isolate the qualifying ${p.parity} terms: first is ${first}, last is ${last}. ` +
+        `Step size is 2, so there are ${n} terms. Pair ends inward: ${first} + ${last} = ${first + last}, ` +
+        `giving ${n / 2} pairs. Sum = ${n / 2} &times; ${first + last} = ${answer}.`;
+    }
+    return `Snap the range to multiples of ${p.k}: first is ${first}, last is ${last}. ` +
+      `This is a scaled arithmetic sequence (step = ${p.k}) with ${n} terms &mdash; ` +
+      `pull out a factor of ${p.k} and it reduces to the same pairing insight. ` +
+      `Sum = ${n / 2} &times; ${first + last} = ${answer}.`;}},
+
+
 
   exponentProperties: {level1Pool: [{ b: 2, k: 2, x: 2, N: 64 },{ b: 2, k: 2, x: 3, N: 512 },{ b: 2, k: 3, x: 2, N: 256 },{ b: 3, k: 2, x: 2, N: 729 }],
     level2Pool: [{ b: 2, k: 1, c: 2, x: 2, N: 64 },{ b: 2, k: 1, c: 2, x: 3, N: 512 },{ b: 2, k: 1, c: 3, x: 2, N: 256 },{ b: 2, k: 2, c: 2, x: 2, N: 1024 },{ b: 3, k: 1, c: 2, x: 2, N: 729 }],
@@ -138,6 +220,7 @@ const generators = {
         m + 'x} = ' + p.N + ' = ' + p.b + '^{' + (m * answer) + '}\\). Matching exponents: \\(' + m +
         'x = ' + (m * answer) + '\\), so \\(x = ' + answer + '\\).';}},
 
+
   logProperties: {level1Pool: [{ b: 6, A: 12, k: 3, x: 18 },{ b: 6, A: 4, k: 2, x: 9 },{ b: 4, A: 8, k: 3, x: 8 },{ b: 10, A: 4, k: 2, x: 25 }, { b: 12, A: 8, k: 2, x: 18 }],
   level2Pool: [{ b: 6, c: 2, A: 24, k: 3, x: 3 },{ b: 10, c: 2, A: 25, k: 2, x: 2 },{ b: 12, c: 2, A: 36, k: 2, x: 2 },{ b: 6, c: 3, A: 27, k: 3, x: 2 },{ b: 6, c: 2, A: 9, k: 2, x: 2 }],
   level3Pool: [{ b: 2, m: 3, A: 16, j: 4, k: 4, coeff: 4, root: 3, radicand: 4,wrongSkip: 1, wrongSign: '32\\sqrt[3]{2}', wrongSplit: '2\\sqrt[3]{16}' },
@@ -183,9 +266,9 @@ const generators = {
 
   explain(p, answer) {
     if (p.difficulty === 1) {
-      return 'Combine using the product rule: \\(\\log_{' + p.b + '}(' + p.A + 'x) = ' + p.k +
-        '\\). Convert to exponential form: \\(' + p.A + 'x = ' + p.b + '^{' + p.k + '} = ' +
-        Math.pow(p.b, p.k) + '\\). Solving: \\(x = ' + p.x + '\\).';}
+      return 'Product of logs identity: \\(\\log_{' + p.b + '}(' + p.A + 'x) = ' + p.k +
+        '\\). <br><br>Definition of logs: \\(' + p.A + 'x = ' + p.b + '^{' + p.k + '} = ' +
+        Math.pow(p.b, p.k) + '\\). <br><br>Solve: \\(x = ' + p.x + '\\).';}
     if (p.difficulty === 2) {
       return 'Apply the power rule first: \\(' + p.c + '\\log_{' + p.b + '}x = \\log_{' + p.b +
         '}x^{' + p.c + '}\\). Now combine: \\(\\log_{' + p.b + '}(' + p.A + 'x^{' + p.c + '}) = ' +
@@ -200,11 +283,11 @@ const generators = {
       ' = ' + p.k + '\\), so \\(\\log_{' + p.b + '}x = ' + p.k + ' - ' + frac + '\\). Convert to exponential form and simplify the fractional exponent: \\(x = ' +
       p.coeff + radStr + '\\).';}},
 
-multiplicationProperties: {
+
+  multiplicationProperties: {
   level1Pool: [{ a: 3, b: 4 },{ a: 5, b: 6 },{ a: 4, b: 9 },{ a: 6, b: -2 },{ a: 8, b: 7 }],
   level2Pool: [{ c: 2, m: 6, N: 48 },{ c: 7, m: 3, N: 63 },{ c: 2, m: 3, N: 30 },{ c: 3, m: 2, N: 42 },{ c: 2, m: 5, N: 90 }],
   level3Pool: [{ c: 4, d1: 3, d2: 6, N: 108, v1: 'x', v2: 'y' },{ c: 2, d1: 3, d2: 7, N: 100, v1: 'm', v2: 'n' },{ c: 3, d1: 2, d2: 5, N: 42, v1: 'a', v2: 'b' },{ c: 3, d1: 1, d2: 3, N: 72, v1: 'a', v2: 'b' },{ c: 4, d1: 1, d2: 2, N: 96, v1: 'a', v2: 'b' }],
-
   generateProblem(difficulty) {
     const pool = this['level' + difficulty + 'Pool'];
     const chosen = pool[Math.floor(Math.random() * pool.length)];
@@ -214,27 +297,34 @@ multiplicationProperties: {
       return { ...chosen, difficulty, prompt: 'Find the value of k:', latex: a + '(n ' + sign + ') = ' + a + 'n + k' };}
     if (difficulty === 2) {
       const { c, m, N } = chosen;
-      return { ...chosen, difficulty, prompt: 'Find the value of k:', given: 'xy = ' + m, latex: '(kx)(' + c + 'y) = ' + N };}
+      return { ...chosen, difficulty, prompt: 'Given xy = ' + m + ', find the value of k:', latex: '(kx)(' + c + 'y) = ' + N };}
     const { c, d1, d2, N, v1, v2 } = chosen;
     return { ...chosen, difficulty, prompt: 'Find the value of ' + v1 + v2 + ':', latex: '(' + c + v1 + ')(' + d1 + v2 + ') + (' + c + v1 + ')(' + d2 + v2 + ') = ' + N };},
-
   correctAnswer(p) {
     if (p.difficulty === 1) return p.a * p.b;
     if (p.difficulty === 2) return p.N / (p.c * p.m);
     return p.N / (p.c * (p.d1 + p.d2));},
-
   distractors(p, answer) {
     const set = new Set([answer]);
     let candidates;
-    if (p.difficulty === 1) { candidates = [p.b, p.a + p.b, answer + p.a];}
-    else if (p.difficulty === 2) { candidates = [Math.round(p.N / p.c), Math.round(p.N / p.m), Math.round(p.N / (p.c + p.m))];}
-    else { candidates = [Math.round(p.N / (p.d1 + p.d2)), Math.round(p.N / (p.c * p.d2)), Math.round(p.N / (p.c * p.d1 * p.d2))];}
+    if (p.difficulty === 1) {
+      candidates = [p.b, p.a + p.b, -answer, answer + p.a, p.a - p.b];
+    } else if (p.difficulty === 2) {
+      candidates = [Math.round(p.N / p.c), Math.round(p.N / p.m), Math.round(p.N / (p.c + p.m)), p.c * p.m, Math.round(p.N / (p.c * p.m + 1))];
+    } else {
+      candidates = [
+        Math.round(p.N / (p.d1 + p.d2)),
+        Math.round(p.N / (p.c * p.d2)),
+        Math.round(p.N / (p.c * p.d1)),
+        Math.round(p.N / (p.c * p.d1 * p.d2)),
+        p.d1 + p.d2,
+      ];
+    }
     const out = [];
     for (const cand of candidates) {
-      if (cand > 0 && Number.isFinite(cand) && !set.has(cand)) { set.add(cand); out.push(cand);}
+      if (Number.isFinite(cand) && cand !== 0 && !set.has(cand)) { set.add(cand); out.push(cand);}
       if (out.length === 3) break;}
     return out;},
-
   explain(p, answer) {
     if (p.difficulty === 1) {
       return 'The ' + p.a + ' outside the parentheses multiplies every term inside: \\(' + p.a + '(n) + ' + p.a + '(' + p.b +
@@ -348,9 +438,29 @@ function renderQuestion() {
 
 function startLevel(level) {
   currentLevel = level;
+  document.getElementById('levelNum').textContent = level;
   session = [buildQuestion(level)];
   qIndex = 0;
   renderQuestion();}
+
+document.getElementById('level-btn').onclick = function(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('level-menu');
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';};
+
+document.querySelectorAll('.level-opt').forEach(opt => {
+  opt.onclick = function() {
+    const lvl = parseInt(this.dataset.level, 10);
+    document.getElementById('level-menu').style.display = 'none';
+    if (lvl === currentLevel) return;
+    document.getElementById('levelNum').textContent = lvl;
+    const url = new URL(window.location);
+    url.searchParams.set('level', lvl);
+    window.history.replaceState({}, '', url);
+    startLevel(lvl);};});
+
+document.addEventListener('click', function() {
+  document.getElementById('level-menu').style.display = 'none';});
 
 document.getElementById('prev-btn').onclick = function() {
   if (qIndex === 0) return;
