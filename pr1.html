@@ -688,7 +688,10 @@ function renderQuestion() {
   const q = session[qIndex];
   document.getElementById('qNum').textContent = qIndex + 1;
   document.getElementById('qTotal').textContent = QUESTIONS_PER_LEVEL;
-  document.getElementById('prompt').textContent = q.problem.prompt;
+  document.getElementById('prompt').innerHTML = q.problem.prompt;
+  renderMathInElement(document.getElementById('prompt'), {
+    delimiters: [{ left: '\\(', right: '\\)', display: false }]
+  });
 
   const eqEl = document.getElementById('promptEquation');
   if (q.problem.latex) {
