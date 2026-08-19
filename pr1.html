@@ -40,12 +40,8 @@
 <div id="practiceStrip">
 <div style="display:flex; justify-content:space-between; align-items:center; margin: 0 0.2rem 1.2rem 0rem;">
 <span style="font-size:16px; color:#999999; font-weight:500;">Question <span id="qNum">1</span> of <span id="qTotal">10</span></span>
-<div style="position:relative;">
-<button id="level-btn" style="padding:6px 12px; border:1px solid #dddddd; border-radius:20px; background:#ffffff; cursor:pointer; color:#888888; font-size:13px; font-weight:600;">Level <span id="levelNum">1</span> &#9662;</button>
-<div id="level-menu" style="display:none; position:absolute; right:0; top:36px; background:#ffffff; border:1px solid #dddddd; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.08); z-index:10; overflow:hidden;">
-<div class="level-opt" data-level="1" style="padding:10px 20px; cursor:pointer; font-size:14px; color:#888888;">Level 1</div>
-<div class="level-opt" data-level="2" style="padding:10px 20px; cursor:pointer; font-size:14px; color:#888888; border-top:1px solid #eeeeee;">Level 2</div>
-<div class="level-opt" data-level="3" style="padding:10px 20px; cursor:pointer; font-size:14px; color:#888888; border-top:1px solid #eeeeee;">Level 3</div>
+<span style="padding:6px 12px; border:1px solid #dddddd; border-radius:20px; background:#ffffff; color:#002C64; font-size:13px; font-weight:600;">Level <span id="levelNum">1</span></span>
+</div>
 
 
 <div id="prompt" style="text-align: left; font-size: 20px; font-weight: 500; color: #002C64; margin: 0 0 1rem 0; line-height: 1.5;"></div>
@@ -443,24 +439,6 @@ function startLevel(level) {
   qIndex = 0;
   renderQuestion();}
 
-document.getElementById('level-btn').onclick = function(e) {
-  e.stopPropagation();
-  const menu = document.getElementById('level-menu');
-  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';};
-
-document.querySelectorAll('.level-opt').forEach(opt => {
-  opt.onclick = function() {
-    const lvl = parseInt(this.dataset.level, 10);
-    document.getElementById('level-menu').style.display = 'none';
-    if (lvl === currentLevel) return;
-    document.getElementById('levelNum').textContent = lvl;
-    const url = new URL(window.location);
-    url.searchParams.set('level', lvl);
-    window.history.replaceState({}, '', url);
-    startLevel(lvl);};});
-
-document.addEventListener('click', function() {
-  document.getElementById('level-menu').style.display = 'none';});
 
 document.getElementById('prev-btn').onclick = function() {
   if (qIndex === 0) return;
