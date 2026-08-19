@@ -385,22 +385,22 @@ additionProperties: {pools: {1: [[1,50],[2,50],[1,40],[5,50],[1,100]],2: [[2,20,
     const pool = this['level' + difficulty + 'Pool'];
     const chosen = pool[Math.floor(Math.random() * pool.length)];
 
-    if (difficulty === 1) {
+if (difficulty === 1) {
       const { a, b, x, y } = chosen;
       const bTerm = b === 1 ? 'y' : b + 'y';
       const aTerm = a === 1 ? 'x' : a + 'x';
-      return { ...chosen, difficulty, prompt: 'If \\(x \\# y = ' + aTerm + ' + ' + bTerm + '\\), what is \\(' + x + ' \\# ' + y + '\\)?' };
+      return { ...chosen, difficulty, prompt: 'If \\(x {\\footnotesize\\#} y = ' + aTerm + ' + ' + bTerm + '\\), what is \\(' + x + ' {\\footnotesize\\#} ' + y + '\\)?' };
     }
     if (difficulty === 2) {
       const { coefA, coefB, y0, N } = chosen;
       const bTerm = coefB === 1 ? 'y' : coefB + 'y';
       const aTerm = coefA === 1 ? 'x' : coefA + 'x';
-      return { ...chosen, difficulty, prompt: 'If \\(x \\# y = ' + aTerm + ' + ' + bTerm + '\\) and \\(a \\# ' + y0 + ' = ' + N + '\\), what is the value of \\(a\\)?' };
+      return { ...chosen, difficulty, prompt: 'If \\(x {\\footnotesize\\#} y = ' + aTerm + ' + ' + bTerm + '\\) and \\(a {\\footnotesize\\#} ' + y0 + ' = ' + N + '\\), what is the value of \\(a\\)?' };
     }
     const { coefA, coefB, N } = chosen;
     const bTerm = coefB === 1 ? 'y' : coefB + 'y';
     const aTerm = coefA === 1 ? 'x' : coefA + 'x';
-    return { ...chosen, difficulty, prompt: 'If \\(x \\# y = ' + aTerm + ' + ' + bTerm + '\\), and \\(a \\# b = ' + N + '\\), which of the following could be the value of \\(a + b\\)?' };
+    return { ...chosen, difficulty, prompt: 'If \\(x {\\footnotesize\\#} y = ' + aTerm + ' + ' + bTerm + '\\), and \\(a {\\footnotesize\\#} b = ' + N + '\\), which of the following could be the value of \\(a + b\\)?' };
   },
 
   correctAnswer(p) {
@@ -704,8 +704,8 @@ function renderQuestion() {
   document.getElementById('feedback').textContent = '';
   document.getElementById('explanation').style.display = 'none';
 
-  const container = document.getElementById('choices');
-  container.innerHTML = '';
+    const container = document.getElementById('choices');
+    container.innerHTML = '';
     q.options.forEach((opt, i) => {
     const row = document.createElement('div');
     row.className = 'choice-row';
@@ -714,7 +714,11 @@ function renderQuestion() {
     badge.textContent = LETTERS[i];
     const label = document.createElement('div');
     label.style.cssText = 'font-size:18px; color:#002C64;';
-    if (typeof opt.val === 'string' && opt.val.includes('\\')) {
+    if (q.problem.choices) {
+      label.textContent = q.problem.choices[opt.val];
+    } else if (opt.val && typeof opt.val === 'object') {
+      label.textContent = 'a = ' + opt.val.a + ', b = ' + opt.val.b;
+    } else if (typeof opt.val === 'string' && opt.val.includes('\\')) {
       katex.render(opt.val, label, { throwOnError: false });
     } else {
       label.textContent = opt.val;
