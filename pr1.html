@@ -11,7 +11,7 @@
 .choice-row { display:flex; align-items:center; gap:14px; padding:16px 18px; border:1px solid #dddddd; border-radius:14px; background:#ffffff; cursor:pointer; margin-bottom:10px; }
 .choice-row.selected { border:2px solid #002C64; }
 .choice-row.correct { border:2px solid #32CD32; }
-.badge { flex:0 0 auto; width:32px; height:32px; border-radius:8px; background:#002C64; color:#ffffff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:15px; }
+.badge { flex:0 0 auto; width:32px; height:32px; border-radius:20px; background:#002C64; color:#ffffff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:15px; }
 .check { margin-left:auto; width:26px; height:26px; border-radius:50%; background:#002C64; color:#ffffff; display:flex; align-items:center; justify-content:center; font-size:14px; }
 .check.correct { background:#32CD32; }
 .level-opt:hover { background:#f5f5f5; }
@@ -60,620 +60,334 @@ function renderKatex(id, latex) {
 /* ---------- Generators (same interface as p1.html) ---------- */
 const generators = {
   
-additionProperties: {pools: {1: [[1,50],[2,50],[1,40],[5,50],[1,100]],2: [[2,20,'even'],[1,19,'odd'],[10,30,'even'],[1,29,'odd'],[4,40,'even']],
-    3: [[1,30,3],[1,40,4],[1,50,5],[1,60,3],[1,80,4]]},
-
+additionProperties: {pools: {1: [[1,50],[2,50],[1,40],[5,50],[1,100]],2: [[2,20,'even'],[1,19,'odd'],[10,30,'even'],[1,29,'odd'],[4,40,'even']], 3: [[1,30,3],[1,40,4],[1,50,5],[1,60,3],[1,80,4]]},
     generateProblem(difficulty) {const pool = this.pools[difficulty];const params = pool[Math.floor(Math.random() * pool.length)];
     if (difficulty === 1) {const [start, end] = params;return { difficulty, start, end,prompt: `What is the sum of all integers from ${start} through ${end}, inclusive?` };
-    }
-    if (difficulty === 2) {const [start, end, parity] = params;return { difficulty, start, end, parity,prompt: `What is the sum of all ${parity} integers from ${start} through ${end}, inclusive?` };
-    }
-    const [start, end, k] = params;return { difficulty, start, end, k,prompt: `What is the sum of all multiples of ${k} from ${start} through ${end}, inclusive?` };
-  },
-
-  // --- helpers ---
-  boundsFor(p) {if (p.difficulty === 1) return { first: p.start, last: p.end, step: 1 };if (p.difficulty === 2) {
-      const wantEven = p.parity === 'even';const first = (p.start % 2 === 0) === wantEven ? p.start : p.start + 1;const last = (p.end % 2 === 0) === wantEven ? p.end : p.end - 1;
-      return { first, last, step: 2 };
-    }
-    const first = Math.ceil(p.start / p.k) * p.k;const last = Math.floor(p.end / p.k) * p.k;return { first, last, step: p.k };
-  },
-  correctAnswer(p) {const { first, last, step } = this.boundsFor(p);const n = Math.floor((last - first) / step) + 1;return (n / 2) * (first + last);
-  },
-  distractors(p, answer) {const { first, last, step } = this.boundsFor(p);const n = Math.floor((last - first) / step) + 1;
-    if (p.difficulty === 1) {
-      return [
+    }if (difficulty === 2) {const [start, end, parity] = params;return { difficulty, start, end, parity,prompt: `What is the sum of all ${parity} integers from ${start} through ${end}, inclusive?` };
+    }const [start, end, k] = params;return { difficulty, start, end, k,prompt: `What is the sum of all multiples of ${k} from ${start} through ${end}, inclusive?` };
+    },
+    // --- helpers ---
+    boundsFor(p) {if (p.difficulty === 1) return { first: p.start, last: p.end, step: 1 };if (p.difficulty === 2) {
+      const wantEven = p.parity === 'even';const first = (p.start % 2 === 0) === wantEven ? p.start : p.start + 1;const last = (p.end % 2 === 0) === wantEven ? p.end : p.end - 1;return { first, last, step: 2 };
+    }const first = Math.ceil(p.start / p.k) * p.k;const last = Math.floor(p.end / p.k) * p.k;return { first, last, step: p.k };  },
+    correctAnswer(p) {const { first, last, step } = this.boundsFor(p);const n = Math.floor((last - first) / step) + 1;return (n / 2) * (first + last);  },
+    distractors(p, answer) {const { first, last, step } = this.boundsFor(p);const n = Math.floor((last - first) / step) + 1;
+    if (p.difficulty === 1) {return [
         Math.round(((n - 1) / 2) * (p.start + p.end)),   // off-by-one on count
         Math.round(p.start + p.end),                       // forgot to multiply by pairs
         Math.round(answer + (p.start + p.end) / 2)          // extra half-pair added
-      ];
-    }
-    if (p.difficulty === 2) {
-      const nAll = Math.floor((p.end - p.start) / 1) + 1;
+      ];}if (p.difficulty === 2) {const nAll = Math.floor((p.end - p.start) / 1) + 1;
       return [
         Math.round((nAll / 2) * (p.start + p.end)),         // forgot to filter parity
         Math.round(answer - first),                          // off-by-one on first qualifying term
         Math.round(answer - step)                            // off-by-one on last qualifying term
-      ];
-    }
-    return [
-      Math.round((n / 2) * ((n - 1) * step)),               // wrong step used in pairing
+      ];}return [Math.round((n / 2) * ((n - 1) * step)),               // wrong step used in pairing
       Math.round(answer - first),                            // forgot to snap start up
       Math.round(answer + (p.end - last))                    // used raw endpoint instead of snapped last
-    ];
-  },
-
-  explain(p, answer) {
-    const { first, last, step } = this.boundsFor(p);
-    const n = Math.floor((last - first) / step) + 1;
-    if (p.difficulty === 1) {
-      return `Pair the first and last: ${p.start} + ${p.end} = ${p.start + p.end}. ` +
+    ];},
+    explain(p, answer) {const { first, last, step } = this.boundsFor(p);const n = Math.floor((last - first) / step) + 1;
+    if (p.difficulty === 1) {return `Pair the first and last: ${p.start} + ${p.end} = ${p.start + p.end}. ` +
         `There are ${n} numbers, forming ${n / 2} pairs. Sum = ${n / 2} &times; ${p.start + p.end} = ${answer}.`;
-    }
-    if (p.difficulty === 2) {
-      return `First isolate the qualifying ${p.parity} terms: first is ${first}, last is ${last}. ` +
+    }if (p.difficulty === 2) {return `First isolate the qualifying ${p.parity} terms: first is ${first}, last is ${last}. ` +
         `Step size is 2, so there are ${n} terms. Pair ends inward: ${first} + ${last} = ${first + last}, ` +
         `giving ${n / 2} pairs. Sum = ${n / 2} &times; ${first + last} = ${answer}.`;
-    }
-    return `Snap the range to multiples of ${p.k}: first is ${first}, last is ${last}. ` +
+    }return `Snap the range to multiples of ${p.k}: first is ${first}, last is ${last}. ` +
       `This is a scaled arithmetic sequence (step = ${p.k}) with ${n} terms &mdash; ` +
       `pull out a factor of ${p.k} and it reduces to the same pairing insight. ` +
       `Sum = ${n / 2} &times; ${first + last} = ${answer}.`;}},
 
-
-
-  exponentProperties: {level1Pool: [{ b: 2, k: 2, x: 2, N: 64 },{ b: 2, k: 2, x: 3, N: 512 },{ b: 2, k: 3, x: 2, N: 256 },{ b: 3, k: 2, x: 2, N: 729 }],
-    level2Pool: [{ b: 2, k: 1, c: 2, x: 2, N: 64 },{ b: 2, k: 1, c: 2, x: 3, N: 512 },{ b: 2, k: 1, c: 3, x: 2, N: 256 },{ b: 2, k: 2, c: 2, x: 2, N: 1024 },{ b: 3, k: 1, c: 2, x: 2, N: 729 }],
-    level3Pool: [{ b: 2, c: 2, n: 2, x: 2, N: 256 },{ b: 2, c: 2, n: 3, x: 2, N: 512 },{ b: 2, c: 2, n: 4, x: 1, N: 128 },{ b: 2, c: 2, n: 4, x: 2, N: 1024 },{ b: 2, c: 3, n: 2, x: 2, N: 1024 },
-    { b: 2, c: 3, n: 3, x: 1, N: 128 },{ b: 2, c: 3, n: 4, x: 1, N: 256 },{ b: 3, c: 2, n: 2, x: 1, N: 243 },{ b: 3, c: 2, n: 3, x: 1, N: 729 },{ b: 3, c: 2, n: 4, x: 1, N: 2187 },
-    { b: 3, c: 3, n: 2, x: 1, N: 729 },{ b: 3, c: 3, n: 3, x: 1, N: 2187 },{ b: 4, c: 2, n: 2, x: 1, N: 1024 }],
-    generateProblem(difficulty) {
-      const pool = this['level' + difficulty + 'Pool'];const chosen = pool[Math.floor(Math.random() * pool.length)];const { b, x, N } = chosen;
-      const k = chosen.k ?? null;const c = chosen.c ?? null;const n = chosen.n ?? null;const hasC = difficulty === 2;const hasN = difficulty === 3;const secondBase = k !== null ? Math.pow(b, k) : null;
-
-      let prompt, latex;
-      if (hasN) {prompt = 'Find the value of x:';latex = b + '^x \\cdot ' + b + '^{' + c + 'x+' + n + '} = ' + N;} 
-        else if (hasC) {prompt = 'Find the value of x:';latex = b + '^x \\cdot ' + secondBase + '^{' + c + 'x} = ' + N;} 
-        else {prompt = 'Find the value of x:';latex = b + '^x \\cdot ' + secondBase + '^{x} = ' + N;}
-      return { b, k, c, n, x, secondBase, N, hasC, hasN, prompt, latex };},
-    correctAnswer(p) { return p.x; },
-    distractors(p, answer) {const set = new Set([answer]);let candidates;
-      if (p.hasN) {const m = 1 + p.c;const ignoredN = Math.round((m * p.x + p.n) / m);candidates = [ignoredN, answer + 1, answer - 1, answer + 2, p.x + p.n];} 
-        else {const m = p.hasC ? 1 + p.k * p.c : 1 + p.k;const ignoredKC = Math.round((m * p.x) / 2);
-        candidates = [ignoredKC, answer + 1, answer - 1, answer + 2, answer + m];}
-      const out = [];for (const cand of candidates) {
-        if (cand > 0 && !set.has(cand)) { set.add(cand); out.push(cand); }
-        if (out.length === 3) break;}
-      return out;},
-
-    explain(p, answer) {if (p.hasN) {
-        const m = 1 + p.c;
-        const totalExp = m * answer + p.n;
-        return 'Combine exponents: \\(' + p.b + '^x \\cdot ' + p.b + '^{' + p.c + 'x+' + p.n + '} = ' +
-         p.b + '^{(1+' + p.c + ')x+' + p.n + '} = ' + p.b + '^{' + m + 'x+' + p.n + '}\\). ' +
-          'Set equal: \\(' + m + 'x+' + p.n + ' = ' + totalExp + '\\) (since \\(' + p.N + ' = ' + p.b + '^{' + totalExp + '}\\)). ' +
-         'Solving: \\(x = ' + answer + '\\).';}
-         if (p.hasC) {
-         const m = 1 + p.k * p.c;
-         return 'Rewrite \\(' + p.secondBase + '\\) as \\(' + p.b + '^' + p.k + '\\), so the equation becomes \\(' +
-         p.b + '^x \\cdot (' + p.b + '^' + p.k + ')^{' + p.c + 'x} = ' + p.N + '\\). ' +
-         'Apply the power rule: \\((' + p.b + '^' + p.k + ')^{' + p.c + 'x} = ' + p.b + '^{' + (p.k * p.c) + 'x}\\). ' +
-        'Now add exponents: \\(' + p.b + '^{' + m + 'x} = ' + p.N + ' = ' + p.b + '^{' + (m * answer) + '}\\). ' +
-        'Matching exponents: \\(' + m + 'x = ' + (m * answer) + '\\), so \\(x = ' + answer + '\\).';}
-        const m = 1 + p.k;
-        return 'Rewrite \\(' + p.secondBase + '\\) as \\(' + p.b + '^' + p.k + '\\), so the equation becomes \\(' +
-        p.b + '^x \\cdot ' + p.b + '^{' + p.k + 'x} = ' + p.N + '\\). Add exponents: \\(' + p.b + '^{' +
-        m + 'x} = ' + p.N + ' = ' + p.b + '^{' + (m * answer) + '}\\). Matching exponents: \\(' + m +
-        'x = ' + (m * answer) + '\\), so \\(x = ' + answer + '\\).';}},
-
-
-  logProperties: {level1Pool: [{ b: 6, A: 12, k: 3, x: 18 },{ b: 6, A: 4, k: 2, x: 9 },{ b: 4, A: 8, k: 3, x: 8 },{ b: 10, A: 4, k: 2, x: 25 }, { b: 12, A: 8, k: 2, x: 18 }],
-    level2Pool: [{ b: 6, c: 2, A: 24, k: 3, x: 3 },{ b: 10, c: 2, A: 25, k: 2, x: 2 },{ b: 12, c: 2, A: 36, k: 2, x: 2 },{ b: 6, c: 3, A: 27, k: 3, x: 2 },{ b: 6, c: 2, A: 9, k: 2, x: 2 }],
-    level3Pool: [{ b: 2, m: 3, A: 16, j: 4, k: 4, coeff: 4, root: 3, radicand: 4,wrongSkip: 1, wrongSign: '32\\sqrt[3]{2}', wrongSplit: '2\\sqrt[3]{16}' },
-    { b: 3, m: 2, A: 27, j: 3, k: 5, coeff: 27, root: 2, radicand: 3,wrongSkip: 9, wrongSign: '81\\sqrt{3}', wrongSplit: '9\\sqrt{3}' },
-    { b: 2, m: 2, A: 32, j: 5, k: 6, coeff: 8, root: 2, radicand: 2,wrongSkip: 2, wrongSign: '32\\sqrt{2}', wrongSplit: '4\\sqrt{2}' },
-    { b: 5, m: 2, A: 125, j: 3, k: 4, coeff: 25, root: 2, radicand: 5,wrongSkip: 5, wrongSign: '125\\sqrt{5}', wrongSplit: '5\\sqrt{5}' },
-    { b: 3, m: 3, A: 81, j: 4, k: 3, coeff: 3, root: 3, radicand: 9,wrongSkip: 1, wrongSign: '9\\sqrt[3]{9}', wrongSplit: '\\sqrt[3]{9}' }],
-
-  generateProblem(difficulty) {
-    const pool = this['level' + difficulty + 'Pool'];
-    const chosen = pool[Math.floor(Math.random() * pool.length)];
-    let latex;
-    if (difficulty === 1) {
-      latex = '\\log_{' + chosen.b + '}x + \\log_{' + chosen.b + '}' + chosen.A + ' = ' + chosen.k;
-    } else if (difficulty === 2) {
-      latex = chosen.c + '\\log_{' + chosen.b + '}x + \\log_{' + chosen.b + '}' + chosen.A + ' = ' + chosen.k;
-    } else {
-      const bm = Math.pow(chosen.b, chosen.m);
-      latex = '\\log_{' + chosen.b + '}x + \\log_{' + bm + '}' + chosen.A + ' = ' + chosen.k;
-    }
-    return { ...chosen, difficulty, prompt: 'Find the value of x:', latex };},
-
-  correctAnswer(p) {
-    if (p.difficulty === 3) {
-      const radStr = (p.root === 2 ? '\\sqrt{' : '\\sqrt[3]{') + p.radicand + '}';
-      return p.coeff + radStr;
-    }
-    return p.x;},
-
-  distractors(p, answer) {
-    if (p.difficulty === 1) {
-      return [
-        Math.round(Math.pow(p.b, p.k) - p.A),
-        Math.round(p.A - Math.pow(p.b, p.k)),
-        Math.round(p.x + p.A)];}
-    if (p.difficulty === 2) {
-      const xc = Math.pow(p.x, p.c);
-      return [
-        Math.round(xc),
-        Math.round(p.x + 1),
-        Math.round((Math.pow(p.b, p.k) - p.A) / p.c)];}
-    return [p.wrongSkip, p.wrongSign, p.wrongSplit];},
-
-  explain(p, answer) {
-    if (p.difficulty === 1) {
-      return 'Product of logs identity: \\(\\log_{' + p.b + '}(' + p.A + 'x) = ' + p.k +
-        '\\). <br><br>Definition of logs: \\(' + p.A + 'x = ' + p.b + '^{' + p.k + '} = ' +
-        Math.pow(p.b, p.k) + '\\). <br><br>Solve: \\(x = ' + p.x + '\\).';}
-    if (p.difficulty === 2) {
-      return 'Apply the power rule first: \\(' + p.c + '\\log_{' + p.b + '}x = \\log_{' + p.b +
-        '}x^{' + p.c + '}\\). Now combine: \\(\\log_{' + p.b + '}(' + p.A + 'x^{' + p.c + '}) = ' +
-        p.k + '\\). Convert: \\(' + p.A + 'x^{' + p.c + '} = ' + p.b + '^{' + p.k + '} = ' +
-        Math.pow(p.b, p.k) + '\\), so \\(x^{' + p.c + '} = ' + Math.pow(p.x, p.c) + '\\), giving \\(x = ' + p.x + '\\).';}
-    const bm = Math.pow(p.b, p.m);
-    const frac = p.j + '/' + p.m;
-    const radStr = (p.root === 2 ? '\\sqrt{' : '\\sqrt[3]{') + p.radicand + '}';
-    return 'Since \\(' + bm + ' = ' + p.b + '^{' + p.m + '}\\), rewrite \\(\\log_{' + bm + '}' + p.A +
-      '\\) directly in base ' + p.b + ': \\(\\log_{' + bm + '}' + p.A + ' = \\log_{' + p.b + '^{' + p.m +
-      '}}' + p.b + '^{' + p.j + '} = ' + frac + '\\). Substitute: \\(\\log_{' + p.b + '}x + ' + frac +
-      ' = ' + p.k + '\\), so \\(\\log_{' + p.b + '}x = ' + p.k + ' - ' + frac + '\\). Convert to exponential form and simplify the fractional exponent: \\(x = ' +
-      p.coeff + radStr + '\\).';}},
-
-
-  multiplicationProperties: {
-    level1Pool: [{ a: 3, b: 4 },{ a: 5, b: 6 },{ a: 4, b: 9 },{ a: 6, b: -2 },{ a: 8, b: 7 }],
-    level2Pool: [{ c: 2, m: 6, N: 48 },{ c: 7, m: 3, N: 63 },{ c: 2, m: 3, N: 30 },{ c: 3, m: 2, N: 42 },{ c: 2, m: 5, N: 90 }],
-    level3Pool: [{ c: 4, d1: 3, d2: 6, N: 108, v1: 'x', v2: 'y' },{ c: 2, d1: 3, d2: 7, N: 100, v1: 'm', v2: 'n' },{ c: 3, d1: 2, d2: 5, N: 42, v1: 'a', v2: 'b' },{ c: 3, d1: 1, d2: 3, N: 72, v1: 'a', v2: 'b' },{ c: 4, d1: 1, d2: 2, N: 96, v1: 'a', v2: 'b' }],
-    generateProblem(difficulty) {
-    const pool = this['level' + difficulty + 'Pool'];
-    const chosen = pool[Math.floor(Math.random() * pool.length)];
-    if (difficulty === 1) {const { a, b } = chosen;const sign = b >= 0 ? '+ ' + b : '\u2212 ' + Math.abs(b);
-      return { ...chosen, difficulty, prompt: 'Find the value of k:', latex: a + '(n ' + sign + ') = ' + a + 'n + k' };}
-    if (difficulty === 2) {const { c, m, N } = chosen;
-      return { ...chosen, difficulty, prompt: 'Given xy = ' + m + ', find the value of k:', latex: '(kx)(' + c + 'y) = ' + N };}
-    const { c, d1, d2, N, v1, v2 } = chosen;
-    return { ...chosen, difficulty, prompt: 'Find the value of ' + v1 + v2 + ':', latex: '(' + c + v1 + ')(' + d1 + v2 + ') + (' + c + v1 + ')(' + d2 + v2 + ') = ' + N };},
-  correctAnswer(p) {
-    if (p.difficulty === 1) return p.a * p.b;
-    if (p.difficulty === 2) return p.N / (p.c * p.m);
-    return p.N / (p.c * (p.d1 + p.d2));},
-  distractors(p, answer) {
-    const set = new Set([answer]);
-    let candidates;
-    if (p.difficulty === 1) {
-      candidates = [p.b, p.a + p.b, -answer, answer + p.a, p.a - p.b];
-    } else if (p.difficulty === 2) {
-      candidates = [Math.round(p.N / p.c), Math.round(p.N / p.m), Math.round(p.N / (p.c + p.m)), p.c * p.m, Math.round(p.N / (p.c * p.m + 1))];
-    } else {
-      candidates = [Math.round(p.N / (p.d1 + p.d2)),Math.round(p.N / (p.c * p.d2)),Math.round(p.N / (p.c * p.d1)),Math.round(p.N / (p.c * p.d1 * p.d2)),
-        p.d1 + p.d2,
-      ];
-    }
-    const out = [];
-    for (const cand of candidates) {
-      if (Number.isFinite(cand) && cand !== 0 && !set.has(cand)) { set.add(cand); out.push(cand);}
-      if (out.length === 3) break;}
-    return out;},
-  explain(p, answer) {
-    if (p.difficulty === 1) {
-      return 'The ' + p.a + ' outside the parentheses multiplies every term inside: \\(' + p.a + '(n) + ' + p.a + '(' + p.b +
-        ')\\). The right side already shows \\(' + p.a + 'n\\), so the remaining piece is \\(' + p.a + ' \\times ' + p.b + ' = ' + answer + '\\).';}
-    if (p.difficulty === 2) {
-      return 'Regroup the factors: \\((kx)(' + p.c + 'y) = ' + p.c + 'k(xy) = ' + p.c + 'k(' + p.m + ') = ' + (p.c * p.m) +
-        'k\\). Setting this equal to \\(' + p.N + '\\) gives \\(' + (p.c * p.m) + 'k = ' + p.N + '\\), so \\(k = ' + answer + '\\).';}
-    const sum = p.d1 + p.d2;
-    return 'Factor out the shared ' + p.c + p.v1 + ': \\(' + p.c + p.v1 + '(' + p.d1 + p.v2 + ' + ' + p.d2 + p.v2 + ') = ' + p.c + p.v1 +
-      '(' + sum + p.v2 + ') = ' + (p.c * sum) + p.v1 + p.v2 + '\\). Setting this equal to \\(' + p.N + '\\) gives \\(' + (p.c * sum) +
-      p.v1 + p.v2 + ' = ' + p.N + '\\), so \\(' + p.v1 + p.v2 + ' = ' + answer + '\\).';}}, 
-    
-    isoscelesTriangleProperties: {
+  
+isoscelesTriangleProperties: {
       // Level 1: \u2220A \u2245 \u2220C, \u2220B given \u2192 Angle Sum Theorem
-      level1Pool: [{ B: 20 },{ B: 40 },{ B: 60 },{ B: 80 },{ B: 100 },{ B: 120 },{ B: 140 },{ B: 44 },{ B: 64 },{ B: 84 },{ B: 104 }],
-
+    level1Pool: [{ B: 20 },{ B: 40 },{ B: 60 },{ B: 80 },{ B: 100 },{ B: 120 },{ B: 140 },{ B: 44 },{ B: 64 },{ B: 84 },{ B: 104 }],
       // Level 2: \u2220A \u2245 \u2220C, exterior \u2220B given \u2192 Exterior Angle Theorem
-      level2Pool: [{ extB: 40 },{ extB: 60 },{ extB: 80 },{ extB: 100 },{ extB: 120 },{ extB: 44 },{ extB: 68 },{ extB: 76 },{ extB: 92 },{ extB: 108 },{ extB: 124 }],
-
+    level2Pool: [{ extB: 40 },{ extB: 60 },{ extB: 80 },{ extB: 100 },{ extB: 120 },{ extB: 44 },{ extB: 68 },{ extB: 76 },{ extB: 92 },{ extB: 108 },{ extB: 124 }],
       // Level 3: \u2220A \u2245 \u2220C, BD bisects \u2220B, \u2220ABD = mx, \u2220A = 2x + k \u2192 Angle Bisector + Angle Sum
-      level3Pool: [{ k: 5, m: 3, x: 17, A: 39 },{ k: 6, m: 1, x: 28, A: 62 },{ k: 6, m: 2, x: 21, A: 48 },
+    level3Pool: [{ k: 5, m: 3, x: 17, A: 39 },{ k: 6, m: 1, x: 28, A: 62 },{ k: 6, m: 2, x: 21, A: 48 },
       { k: 6, m: 4, x: 14, A: 34 },{ k: 6, m: 5, x: 12, A: 30 },{ k: 9, m: 1, x: 27, A: 63 },
       { k: 9, m: 7, x: 9, A: 27 },{ k: 10, m: 2, x: 20, A: 50 },{ k: 10, m: 3, x: 16, A: 42 },
       { k: 10, m: 6, x: 10, A: 30 },{ k: 13, m: 5, x: 11, A: 35 },{ k: 18, m: 4, x: 12, A: 42 },
       { k: 18, m: 6, x: 9, A: 36 },{ k: 18, m: 7, x: 8, A: 34 }],
-
-  generateProblem(difficulty) {
-    const pool = this['level' + difficulty + 'Pool'];const chosen = pool[Math.floor(Math.random() * pool.length)];
-
-    if (difficulty === 1) {
-      const { B } = chosen;
-      return { ...chosen, difficulty, prompt: 'In \\(\\triangle ABC\\), \\(\\angle A \\cong \\angle C\\), and \\(\\angle B = ' + B + '^\\circ\\). Find \\(\\angle A\\).' };
-    }
-    if (difficulty === 2) {
-      const { extB } = chosen;
-      return { ...chosen, difficulty, prompt: 'In \\(\\triangle ABC\\), \\(\\angle A \\cong \\angle C\\). The exterior angle at B measures ' + extB + '^\\circ. Find \\(\\angle A\\).' };
-    }
-    const { k, m } = chosen;
-    return { ...chosen, difficulty, prompt: 'In \\(\\triangle ABC\\), \\(\\angle A \\cong \\angle C\\). BD bisects \\(\\angle B\\). \\(\\angle ABD = ' + m + 'x\\), \\(\\angle A = 2x + ' + k + '\\). Find \\(\\angle A\\).' };
-  },
-
-  correctAnswer(p) {
-    if (p.difficulty === 1) return (180 - p.B) / 2;
-    if (p.difficulty === 2) return p.extB / 2;
-    return p.A;
-  },
-
-  distractors(p, answer) {
-    const set = new Set([answer]);
-    let candidates;
-
-    if (p.difficulty === 1) {
-      candidates = [
+    generateProblem(difficulty) { const pool = this['level' + difficulty + 'Pool'];const chosen = pool[Math.floor(Math.random() * pool.length)];
+    if (difficulty === 1) { const { B } = chosen; return { ...chosen, difficulty, prompt: 'In \\(\\triangle ABC\\), \\(\\angle A \\cong \\angle C\\), and \\(\\angle B = ' + B + '^\\circ\\). Find \\(\\angle A\\).' };}
+    if (difficulty === 2) { const { extB } = chosen; return { ...chosen, difficulty, prompt: 'In \\(\\triangle ABC\\), \\(\\angle A \\cong \\angle C\\). The exterior angle at B measures ' + extB + '^\\circ. Find \\(\\angle A\\).' };
+    } const { k, m } = chosen;return { ...chosen, difficulty, prompt: 'In \\(\\triangle ABC\\), \\(\\angle A \\cong \\angle C\\). BD bisects \\(\\angle B\\). \\(\\angle ABD = ' + m + 'x\\), \\(\\angle A = 2x + ' + k + '\\). Find \\(\\angle A\\).' };},
+    correctAnswer(p) {if (p.difficulty === 1) return (180 - p.B) / 2;
+    if (p.difficulty === 2) return p.extB / 2; return p.A;},
+    distractors(p, answer) { const set = new Set([answer]); let candidates;
+    if (p.difficulty === 1) { candidates = [
         180 - p.B,           // forgot to halve the remainder
         p.B / 2,             // halved \u2220B instead of the remainder
         answer + 10,         // generic near-miss
-      ];
-    } else if (p.difficulty === 2) {
-      candidates = [
+      ]; } else if (p.difficulty === 2) { candidates = [
         (180 - p.extB) / 2,  // treated exterior \u2220B as interior \u2220B
         p.extB,              // forgot to halve (gave \u2220A + \u2220C combined)
         (180 - p.extB / 2) / 2, // muddled formula
-      ];
-    } else {
-      const wrongX = (180 - 2 * p.k) / (4 + p.m); // forgot bisector doubling
-      candidates = [
-        Math.round(2 * wrongX + p.k),
+      ]; } else { const wrongX = (180 - 2 * p.k) / (4 + p.m); // forgot bisector doubling
+      candidates = [ Math.round(2 * wrongX + p.k),
         p.x,                         // solved for x, forgot to substitute back
         (180 - p.k) / 2,             // misapplied angle sum directly to k
-      ];
-    }
-
-    const out = [];
-    for (const cand of candidates) {
-      if (Number.isFinite(cand) && cand > 0 && !set.has(cand)) { set.add(cand); out.push(cand); }
-      if (out.length === 3) break;
-    }
-    return out;
-  },
-
-  explain(p, answer) {
-    if (p.difficulty === 1) {
-      return 'Isosceles Triangle Theorem: \\(\\angle A \\cong \\angle C\\), so let both equal \\(\\angle A\\). ' +
+      ]; }const out = []; for (const cand of candidates) { if (Number.isFinite(cand) && cand > 0 && !set.has(cand)) { set.add(cand); out.push(cand); }
+      if (out.length === 3) break; } return out;},
+    explain(p, answer) { if (p.difficulty === 1) {  return 'Isosceles Triangle Theorem: \\(\\angle A \\cong \\angle C\\), so let both equal \\(\\angle A\\). ' +
         '<br><br>Triangle Angle Sum Theorem: \\(2\\angle A + ' + p.B + '^\\circ = 180^\\circ\\). ' +
         '<br><br>Solve: \\(\\angle A = ' + answer + '^\\circ\\).';
-    }
-    if (p.difficulty === 2) {
-      return 'Isosceles Triangle Theorem: \\(\\angle A \\cong \\angle C\\). ' +
+    } if (p.difficulty === 2) { return 'Isosceles Triangle Theorem: \\(\\angle A \\cong \\angle C\\). ' +
         '<br><br>Exterior Angle Theorem: the exterior angle at B equals the sum of the two remote interior angles, \\(\\angle A + \\angle C = ' + p.extB + '^\\circ\\). ' +
         '<br><br>Since \\(\\angle A = \\angle C\\): \\(2\\angle A = ' + p.extB + '^\\circ\\), so \\(\\angle A = ' + answer + '^\\circ\\).';
-    }
-    const twoM = 2 * p.m;
-    const coeff = 4 + twoM;
-    const const2k = 2 * p.k;
+    } const twoM = 2 * p.m;const coeff = 4 + twoM;  const const2k = 2 * p.k;
     return 'Isosceles Triangle Theorem: \\(\\angle A \\cong \\angle C\\). ' +
       '<br><br>Angle Bisector Definition: BD bisects \\(\\angle B\\), so \\(\\angle B = 2(\\angle ABD) = ' + twoM + 'x\\). ' +
       '<br><br>Triangle Angle Sum Theorem: \\(2(2x + ' + p.k + ') + ' + twoM + 'x = 180\\). ' +
       '<br><br>Simplify: \\(' + coeff + 'x + ' + const2k + ' = 180\\), so \\(x = ' + p.x + '\\). ' +
-      '<br><br>Substitute back: \\(\\angle A = 2(' + p.x + ') + ' + p.k + ' = ' + answer + '^\\circ\\).';
-  }},
+      '<br><br>Substitute back: \\(\\angle A = 2(' + p.x + ') + ' + p.k + ' = ' + answer + '^\\circ\\).';}},
 
-    functionProperties: {
-        // Level 1: forward substitution — x # y = ax + by, given x0,y0 \u2192 compute N
+functionProperties: {        
+    // Level 1: forward substitution — x # y = ax + by, given x0,y0 \u2192 compute N
     level1Pool: [{ a: 2, b: 3, x: 4, y: 2, N: 14 },{ a: 3, b: 2, x: 5, y: 1, N: 17 },{ a: 1, b: 4, x: 6, y: 3, N: 18 },{ a: 5, b: 1, x: 2, y: 7, N: 17 },
-    { a: 2, b: 1, x: 8, y: 4, N: 20 },
-  ],
-
-      // Level 2: reverse substitution — x # y = coefA*x + coefB*y, given a # y0 = N \u2192 solve for a
+    { a: 2, b: 1, x: 8, y: 4, N: 20 }, ],
+    // Level 2: reverse substitution — x # y = coefA*x + coefB*y, given a # y0 = N \u2192 solve for a
     level2Pool: [{ coefA: 2, coefB: 1, y0: 5, x: 6, N: 17 },{ coefA: 3, coefB: 2, y0: 4, x: 5, N: 23 },{ coefA: 1, coefB: 3, y0: 6, x: 2, N: 20 },{ coefA: 4, coefB: 1, y0: 3, x: 6, N: 27 },
-    { coefA: 2, coefB: 5, y0: 2, x: 3, N: 16 },
-  ],
-
+    { coefA: 2, coefB: 5, y0: 2, x: 3, N: 16 },  ],
     // Level 3: underdetermined system — coefA*a + coefB*b = N, multiple valid (a,b); answer = smallest-b solution's a+b
     level3Pool: [{ coefA: 2, coefB: 3, N: 17, a: 4, b: 3, sum: 7 },{ coefA: 3, coefB: 2, N: 19, a: 5, b: 2, sum: 7 }, { coefA: 4, coefB: 1, N: 22, a: 5, b: 2, sum: 7 },
-      { coefA: 1, coefB: 4, N: 21, a: 5, b: 4, sum: 9 },{ coefA: 2, coefB: 5, N: 26, a: 3, b: 4, sum: 7 },
-  ],
-
-  generateProblem(difficulty) {
-    const pool = this['level' + difficulty + 'Pool'];
-    const chosen = pool[Math.floor(Math.random() * pool.length)];
-
-if (difficulty === 1) {
-      const { a, b, x, y } = chosen;
-      const bTerm = b === 1 ? 'y' : b + 'y';
-      const aTerm = a === 1 ? 'x' : a + 'x';
-      return { ...chosen, difficulty, prompt: 'If \\(x {\\footnotesize\\#} y = ' + aTerm + ' + ' + bTerm + '\\), what is \\(' + x + ' {\\footnotesize\\#} ' + y + '\\)?' };
-    }
-    if (difficulty === 2) {
-      const { coefA, coefB, y0, N } = chosen;
-      const bTerm = coefB === 1 ? 'y' : coefB + 'y';
-      const aTerm = coefA === 1 ? 'x' : coefA + 'x';
-      return { ...chosen, difficulty, prompt: 'If \\(x {\\footnotesize\\#} y = ' + aTerm + ' + ' + bTerm + '\\) and \\(a {\\footnotesize\\#} ' + y0 + ' = ' + N + '\\), what is the value of \\(a\\)?' };
-    }
-    const { coefA, coefB, N } = chosen;
-    const bTerm = coefB === 1 ? 'y' : coefB + 'y';
-    const aTerm = coefA === 1 ? 'x' : coefA + 'x';
-    return { ...chosen, difficulty, prompt: 'If \\(x {\\footnotesize\\#} y = ' + aTerm + ' + ' + bTerm + '\\), and \\(a {\\footnotesize\\#} b = ' + N + '\\), which of the following could be the value of \\(a + b\\)?' };
-  },
-
-  correctAnswer(p) {
-    if (p.difficulty === 1) return p.N;
-    if (p.difficulty === 2) return p.x;
-    return p.sum;
-  },
-
-  distractors(p, answer) {
-    const set = new Set([answer]);
-    let candidates;
-
-    if (p.difficulty === 1) {
-      candidates = [
+      { coefA: 1, coefB: 4, N: 21, a: 5, b: 4, sum: 9 },{ coefA: 2, coefB: 5, N: 26, a: 3, b: 4, sum: 7 }, ],
+    generateProblem(difficulty) {    const pool = this['level' + difficulty + 'Pool']; const chosen = pool[Math.floor(Math.random() * pool.length)];
+    if (difficulty === 1) { const { a, b, x, y } = chosen; const bTerm = b === 1 ? 'y' : b + 'y';  const aTerm = a === 1 ? 'x' : a + 'x';
+      return { ...chosen, difficulty, prompt: 'If \\(x {\\footnotesize\\#} y = ' + aTerm + ' + ' + bTerm + '\\), what is \\(' + x + ' {\\footnotesize\\#} ' + y + '\\)?' };    }
+    if (difficulty === 2) { const { coefA, coefB, y0, N } = chosen; const bTerm = coefB === 1 ? 'y' : coefB + 'y'; const aTerm = coefA === 1 ? 'x' : coefA + 'x';
+      return { ...chosen, difficulty, prompt: 'If \\(x {\\footnotesize\\#} y = ' + aTerm + ' + ' + bTerm + '\\) and \\(a {\\footnotesize\\#} ' + y0 + ' = ' + N + '\\), what is the value of \\(a\\)?' };    }
+    const { coefA, coefB, N } = chosen; const bTerm = coefB === 1 ? 'y' : coefB + 'y'; const aTerm = coefA === 1 ? 'x' : coefA + 'x';
+    return { ...chosen, difficulty, prompt: 'If \\(x {\\footnotesize\\#} y = ' + aTerm + ' + ' + bTerm + '\\), and \\(a {\\footnotesize\\#} b = ' + N + '\\), which of the following could be the value of \\(a + b\\)?' };  },
+    correctAnswer(p) {if (p.difficulty === 1) return p.N; if (p.difficulty === 2) return p.x; return p.sum;  },
+    distractors(p, answer) { const set = new Set([answer]); let candidates;
+    if (p.difficulty === 1) { candidates = [
         p.a * p.y + p.b * p.x,   // swapped which variable gets which coefficient
         p.x + p.y,               // treated # as ordinary addition
         p.b * p.x + p.a * p.y,   // flipped coefficients in the definition itself
-      ];
-    } else if (p.difficulty === 2) {
-      candidates = [
+      ]; } else if (p.difficulty === 2) {  candidates = [
         Math.round((p.N - p.coefA * p.y0) / p.coefB), // solved for y0's coefficient slot instead of x's
         p.N - p.coefB * p.y0,                          // forgot to divide by coefA
         p.x + p.coefB,                                  // generic near-miss
-      ];
-    } else {
+      ]; } else {
       // other valid (a,b) sums for the same equation, plus one invalid-parity sum
-      const alt = [];
-      for (let b = 1; b < p.N; b++) {
-        const rem = p.N - p.coefB * b;
-        if (rem > 0 && rem % p.coefA === 0) {
-          const a = rem / p.coefA;
-          if (a + b !== p.sum) alt.push(a + b);
-        }
-      }
-      candidates = [...alt, p.sum + 1];
-    }
-
-    const out = [];
-    for (const cand of candidates) {
-      if (Number.isFinite(cand) && cand > 0 && !set.has(cand)) { set.add(cand); out.push(cand); }
-      if (out.length === 3) break;
-    }
-    return out;
-  },
-
-  explain(p, answer) {
-    if (p.difficulty === 1) {
-      return 'Definition of the operation: \\(x \\# y = ' + p.a + 'x + ' + p.b + 'y\\). ' +
+      const alt = []; for (let b = 1; b < p.N; b++) {  const rem = p.N - p.coefB * b;  if (rem > 0 && rem % p.coefA === 0) {  const a = rem / p.coefA;
+          if (a + b !== p.sum) alt.push(a + b); }  } candidates = [...alt, p.sum + 1]; } const out = []; for (const cand of candidates) {
+      if (Number.isFinite(cand) && cand > 0 && !set.has(cand)) { set.add(cand); out.push(cand); }  if (out.length === 3) break;  }  return out;  },
+    explain(p, answer) { if (p.difficulty === 1) {  return 'Definition of the operation: \\(x \\# y = ' + p.a + 'x + ' + p.b + 'y\\). ' +
         '<br><br>Substitute in order \u2014 \\(x = ' + p.x + '\\), \\(y = ' + p.y + '\\): \\(' + p.a + '(' + p.x + ') + ' + p.b + '(' + p.y + ')\\). ' +
-        '<br><br>Evaluate: \\(' + (p.a * p.x) + ' + ' + (p.b * p.y) + ' = ' + answer + '\\).';
-    }
-    if (p.difficulty === 2) {
-      return 'Definition of the operation: \\(x \\# y = ' + p.coefA + 'x + ' + p.coefB + 'y\\). ' +
+        '<br><br>Evaluate: \\(' + (p.a * p.x) + ' + ' + (p.b * p.y) + ' = ' + answer + '\\).';  }
+    if (p.difficulty === 2) { return 'Definition of the operation: \\(x \\# y = ' + p.coefA + 'x + ' + p.coefB + 'y\\). ' +
         '<br><br>Substitute the known value into \\(y\\): \\(' + p.coefA + 'a + ' + p.coefB + '(' + p.y0 + ') = ' + p.N + '\\). ' +
-        '<br><br>Solve for \\(a\\): \\(' + p.coefA + 'a = ' + p.N + ' - ' + (p.coefB * p.y0) + ' = ' + (p.N - p.coefB * p.y0) + '\\), so \\(a = ' + answer + '\\).';
-    }
+        '<br><br>Solve for \\(a\\): \\(' + p.coefA + 'a = ' + p.N + ' - ' + (p.coefB * p.y0) + ' = ' + (p.N - p.coefB * p.y0) + '\\), so \\(a = ' + answer + '\\).';    }
     return 'Definition of the operation: \\(x \\# y = ' + p.coefA + 'x + ' + p.coefB + 'y\\), so \\(' + p.coefA + 'a + ' + p.coefB + 'b = ' + p.N + '\\). ' +
       '<br><br>This is one equation with two unknowns \u2014 it has a family of positive-integer solutions, not a single answer. ' +
       '<br><br>One valid pair: \\(a = ' + p.a + '\\), \\(b = ' + p.b + '\\), since \\(' + p.coefA + '(' + p.a + ') + ' + p.coefB + '(' + p.b + ') = ' + p.N + '\\). ' +
-      '<br><br>So \\(a + b = ' + answer + '\\).';
-  }},
+      '<br><br>So \\(a + b = ' + answer + '\\).'; }},
 
-    combinatoricsProperties: {
+combinatoricsProperties: {
       // Level 1: two-digit positive integers, digits (1-9) whose product is N \u2192 count ordered pairs
      level1Pool: [{ N: 12, count: 4, sets: [[2,6],[3,4]] },{ N: 8,  count: 4, sets: [[1,8],[2,4]] },{ N: 6,  count: 4, sets: [[1,6],[2,3]] },{ N: 9,  count: 3, sets: [[1,9],[3,3]] },
-    { N: 16, count: 3, sets: [[2,8],[4,4]] },
-  ],
-
+    { N: 16, count: 3, sets: [[2,8],[4,4]] }, ],
     // Level 2: three-digit positive integers, digits (1-9) whose product is N \u2192 one repeated-digit set + one all-distinct set
     level2Pool: [{ N: 6,  distinctSet: [1,2,3], repeatSet: [1,1,6] },{ N: 20, distinctSet: [1,4,5], repeatSet: [2,2,5] },{ N: 28, distinctSet: [1,4,7], repeatSet: [2,2,7] },{ N: 45, distinctSet: [1,5,9], repeatSet: [3,3,5] },
-    { N: 80, distinctSet: [2,5,8], repeatSet: [4,4,5] },
-  ],
-
+    { N: 80, distinctSet: [2,5,8], repeatSet: [4,4,5] }, ],
     // Level 3: three-digit positive integers, digits whose product is N AND sum is S \u2192 unique factor set survives
     level3Pool: [{ N: 12, S: 8,  digits: [1,3,4], arrangements: 6 },{ N: 18, S: 10, digits: [1,3,6], arrangements: 6 },{ N: 20, S: 9,  digits: [2,2,5], arrangements: 3 },
-    { N: 30, S: 12, digits: [1,5,6], arrangements: 6 },{ N: 45, S: 11, digits: [3,3,5], arrangements: 3 },
-  ],
-
-  generateProblem(difficulty) {
-    const pool = this['level' + difficulty + 'Pool'];
-    const chosen = pool[Math.floor(Math.random() * pool.length)];
-
-    if (difficulty === 1) {
-      return { ...chosen, difficulty, prompt: 'How many two-digit positive integers have digits whose product is ' + chosen.N + '?' };
-    }
-    if (difficulty === 2) {
-      return { ...chosen, difficulty, prompt: 'How many three-digit positive integers have digits whose product is ' + chosen.N + '?' };
-    }
-    return { ...chosen, difficulty, prompt: 'How many three-digit positive integers have digits whose product is ' + chosen.N + ' and whose sum is ' + chosen.S + '?' };
-  },
-
-  correctAnswer(p) {
-    if (p.difficulty === 1) return p.count;
-    if (p.difficulty === 2) {
-      const distinctArr = 6;   // 3! for all-distinct digits
+    { N: 30, S: 12, digits: [1,5,6], arrangements: 6 },{ N: 45, S: 11, digits: [3,3,5], arrangements: 3 }, ],
+    generateProblem(difficulty) { const pool = this['level' + difficulty + 'Pool']; const chosen = pool[Math.floor(Math.random() * pool.length)];
+    if (difficulty === 1) { return { ...chosen, difficulty, prompt: 'How many two-digit positive integers have digits whose product is ' + chosen.N + '?' };
+    } if (difficulty === 2) { return { ...chosen, difficulty, prompt: 'How many three-digit positive integers have digits whose product is ' + chosen.N + '?' };
+    } return { ...chosen, difficulty, prompt: 'How many three-digit positive integers have digits whose product is ' + chosen.N + ' and whose sum is ' + chosen.S + '?' };  },
+    correctAnswer(p) { if (p.difficulty === 1) return p.count; if (p.difficulty === 2) { const distinctArr = 6;   // 3! for all-distinct digits
       const repeatArr = 3;     // 3!/2! for one repeated digit
-      return distinctArr + repeatArr;
-    }
-    return p.arrangements;
-  },
-
-  distractors(p, answer) {
-    const set = new Set([answer]);
-    let candidates;
-
-    if (p.difficulty === 1) {
-      candidates = [
+      return distinctArr + repeatArr; } return p.arrangements;},
+    distractors(p, answer) { const set = new Set([answer]); let candidates; if (p.difficulty === 1) { candidates = [
         answer - 2,  // counted unordered pairs instead of ordered (forgot ab \u2260 ba)
         answer + 2,  // double-counted a repeated-digit pair
         answer - 1,  // missed one valid pair
-      ];
-    } else if (p.difficulty === 2) {
-      candidates = [
+      ];  } else if (p.difficulty === 2) {   candidates = [
         12,  // used 3! for both sets, forgot to divide repeated set by 2!
         6,   // only counted the all-distinct set, ignored the repeated-digit set
         3,   // only counted the repeated-digit set, ignored the all-distinct set
-      ];
-    } else {
-      const distinctUnique = new Set(p.digits).size === 3;
-      candidates = [
+      ];  } else {
+      const distinctUnique = new Set(p.digits).size === 3;  candidates = [
         distinctUnique ? 3 : 6,  // applied the wrong permutation rule (mixed up distinct vs. repeated)
         p.S,                      // confused the sum constraint with the answer itself
         answer + 6,                // counted an extra factor set that fails the sum check
-      ];
-    }
-
-    const out = [];
-    for (const cand of candidates) {
-      if (Number.isFinite(cand) && cand > 0 && !set.has(cand)) { set.add(cand); out.push(cand); }
-      if (out.length === 3) break;
-    }
-    return out;
-  },
-
-  explain(p, answer) {
-    if (p.difficulty === 1) {
-      const setsStr = p.sets.map(s => '(' + s[0] + ',' + s[1] + ')').join(' and ');
+      ]; }
+    const out = [];  for (const cand of candidates) { if (Number.isFinite(cand) && cand > 0 && !set.has(cand)) { set.add(cand); out.push(cand); }
+      if (out.length === 3) break;  } return out; },
+    explain(p, answer) { if (p.difficulty === 1) {const setsStr = p.sets.map(s => '(' + s[0] + ',' + s[1] + ')').join(' and ');
       return 'Fundamental Counting Principle: find every digit pair (1\u20139) whose product is ' + p.N + ' \u2014 ' + setsStr + '. ' +
         '<br><br>Each pair can be arranged in the tens/units positions in order, since the two digit-slots are already distinct positions. ' +
-        '<br><br>Total count: \\(' + answer + '\\).';
-    }
-    if (p.difficulty === 2) {
-      const [d1,d2,d3] = p.distinctSet;
-      const [r1,r2,r3] = p.repeatSet;
+        '<br><br>Total count: \\(' + answer + '\\).'; } if (p.difficulty === 2) { const [d1,d2,d3] = p.distinctSet;  const [r1,r2,r3] = p.repeatSet;
       return 'Prime factorization backward: find every digit triple (1\u20139) whose product is ' + p.N + '. ' +
         '<br><br>All-distinct set \\(\\{' + d1 + ',' + d2 + ',' + d3 + '\\}\\): \\(3! = 6\\) arrangements. ' +
         '<br><br>Repeated-digit set \\(\\{' + r1 + ',' + r2 + ',' + r3 + '\\}\\): \\(3!/2! = 3\\) arrangements (dividing out the repeat). ' +
-        '<br><br>Total: \\(6 + 3 = ' + answer + '\\).';
-    }
-    const [a,b,c] = p.digits;
-    const isDistinct = new Set(p.digits).size === 3;
-    const rule = isDistinct ? '\\(3! = 6\\)' : '\\(3!/2! = 3\\)';
-    return 'Find all digit triples whose product is ' + p.N + ', then filter by the sum constraint (' + p.S + '). ' +
+        '<br><br>Total: \\(6 + 3 = ' + answer + '\\).'; } const [a,b,c] = p.digits; const isDistinct = new Set(p.digits).size === 3; const rule = isDistinct ? '\\(3! = 6\\)' : '\\(3!/2! = 3\\)';
+      return 'Find all digit triples whose product is ' + p.N + ', then filter by the sum constraint (' + p.S + '). ' +
       '<br><br>Only \\(\\{' + a + ',' + b + ',' + c + '\\}\\) satisfies both: product \\(' + a + '\\times' + b + '\\times' + c + ' = ' + p.N + '\\) and sum \\(' + a + '+' + b + '+' + c + ' = ' + p.S + '\\). ' +
       '<br><br>Other factor sets of ' + p.N + ' fail the sum check and are eliminated. ' +
-      '<br><br>Apply the arrangement rule: ' + rule + ' \u2192 \\(' + answer + '\\) integers.';
-  }},
+      '<br><br>Apply the arrangement rule: ' + rule + ' \u2192 \\(' + answer + '\\) integers.'; }},
     
-  fractionProperties: {
+fractionProperties: {
     // Level 1: 1/a + 1/b = 1/n \u2192 (a-n)(b-n) = n\u00b2 \u2192 give one valid (a,b) pair
-      level1Pool: [{ n: 2, a: 3, b: 6 },{ n: 3, a: 4, b: 12 },{ n: 4, a: 5, b: 20 },{ n: 5, a: 6, b: 30 },{ n: 6, a: 7, b: 42 },
-  ],
-
+    level1Pool: [{ n: 2, a: 3, b: 6 },{ n: 3, a: 4, b: 12 },{ n: 4, a: 5, b: 20 },{ n: 5, a: 6, b: 30 },{ n: 6, a: 7, b: 42 }, ],
     // Level 2: 1/a + 1/b = 1/n \u2192 which cleared-denominator equation must be true (always: n(a+b) = ab)
     level2Pool: [{ n: 2 }, { n: 3 }, { n: 4 }, { n: 5 }, { n: 6 }],
-
-  // Level 3: a/b + b/a = p/q \u2192 qx\u00b2 - px + q = 0, x = a/b \u2192 reciprocal root pairs
-  level3Pool: [{ p: 13, q: 6,  root1: '2/3',  root2: '3/2' },{ p: 10, q: 3,  root1: '1/3',  root2: '3'   },{ p: 5,  q: 2,  root1: '1/2',  root2: '2'   },
-    { p: 17, q: 4,  root1: '1/4',  root2: '4'   },{ p: 25, q: 12, root1: '3/4',  root2: '4/3' },
-  ],
-
-  generateProblem(difficulty) {
-    const pool = this['level' + difficulty + 'Pool'];
-    const chosen = pool[Math.floor(Math.random() * pool.length)];
-
-    if (difficulty === 1) {
-      const { n } = chosen;
-      return { ...chosen, difficulty, prompt: 'If a and b are positive integers such that \\(\\frac{1}{a} + \\frac{1}{b} = \\frac{1}{' + n + '}\\), what is a possible value of a and b?' };
-    }
-    if (difficulty === 2) {
-      const { n } = chosen;
-      return {
-        ...chosen, difficulty,
-        prompt: 'If a and b are positive integers and \\(\\frac{1}{a} + \\frac{1}{b} = \\frac{1}{' + n + '}\\), which equation must be true?',
-        choices: {
-          A: 'a + b = ' + n + 'ab',
-          B: n + '(a + b) = ab',
-          C: 'a + b = ab',
-          D: 'ab + ' + n + ' = a + b',
-        },
-        correctChoice: 'B',
-      };
-    }
-    const { p, q } = chosen;
-    return { ...chosen, difficulty, prompt: 'If \\(\\frac{a}{b} + \\frac{b}{a} = \\frac{' + p + '}{' + q + '}\\), where a and b are positive integers, what is a possible value of \\(\\frac{a}{b}\\)?' };
-  },
-
-  correctAnswer(p) {
-    if (p.difficulty === 1) return { a: p.a, b: p.b };
-    if (p.difficulty === 2) return p.correctChoice;
-    return p.root2; // report the >1 root as the canonical answer; root1 (its reciprocal) is equally valid
-  },
-
-  distractors(p, answer) {
-    if (p.difficulty === 1) {
+    // Level 3: a/b + b/a = p/q \u2192 qx\u00b2 - px + q = 0, x = a/b \u2192 reciprocal root pairs
+    level3Pool: [{ p: 13, q: 6,  root1: '2/3',  root2: '3/2' },{ p: 10, q: 3,  root1: '1/3',  root2: '3'   },{ p: 5,  q: 2,  root1: '1/2',  root2: '2'   },
+    { p: 17, q: 4,  root1: '1/4',  root2: '4'   },{ p: 25, q: 12, root1: '3/4',  root2: '4/3' }, ],
+    generateProblem(difficulty) { const pool = this['level' + difficulty + 'Pool']; const chosen = pool[Math.floor(Math.random() * pool.length)];
+    if (difficulty === 1) { const { n } = chosen;  return { ...chosen, difficulty, prompt: 'If a and b are positive integers such that \\(\\frac{1}{a} + \\frac{1}{b} = \\frac{1}{' + n + '}\\), what is a possible value of a and b?' };
+    }if (difficulty === 2) { const { n } = chosen; return {
+        ...chosen, difficulty,    prompt: 'If a and b are positive integers and \\(\\frac{1}{a} + \\frac{1}{b} = \\frac{1}{' + n + '}\\), which equation must be true?',
+        choices: { A: 'a + b = ' + n + 'ab',  B: n + '(a + b) = ab', C: 'a + b = ab', D: 'ab + ' + n + ' = a + b',  },
+        correctChoice: 'B',  }; }    const { p, q } = chosen; return { ...chosen, difficulty, prompt: 'If \\(\\frac{a}{b} + \\frac{b}{a} = \\frac{' + p + '}{' + q + '}\\), where a and b are positive integers, what is a possible value of \\(\\frac{a}{b}\\)?' };  },
+    correctAnswer(p) {if (p.difficulty === 1) return { a: p.a, b: p.b }; if (p.difficulty === 2) return p.correctChoice; return p.root2; // report the >1 root as the canonical answer; root1 (its reciprocal) is equally valid
+          },
+    distractors(p, answer) { if (p.difficulty === 1) {
       // distractor pairs: swapped roles, used n instead of n+d, or picked a non-divisor pair
       return [
         { a: p.n, b: p.n * p.n },           // forgot to add n back after solving (a-n)(b-n)=n\u00b2
         { a: p.a - 1, b: p.b },              // off-by-one on the divisor
         { a: p.n + 1, b: p.n + 1 },          // assumed a=b without checking (n+1)\u00b2 = n\u00b2
-      ];
-    }
-    if (p.difficulty === 2) {
-      return ['A', 'C', 'D'].filter(x => x !== answer);
-    }
+      ];  }    if (p.difficulty === 2) { return ['A', 'C', 'D'].filter(x => x !== answer); }
     // Level 3: distractors are the given sum itself, its inverted form, and a discriminant slip
-    const set = new Set([answer, p.root1]);
-    const candidates = [
+    const set = new Set([answer, p.root1]); const candidates = [
       p.p + '/' + p.q,   // copied the given sum instead of solving
       p.q + '/' + p.p,   // inverted the target ratio
       '1',                // assumed the sum implies a = b
-    ];
-    const out = [];
-    for (const c of candidates) {
-      if (!set.has(c)) { set.add(c); out.push(c); }
-      if (out.length === 3) break;
-    }
-    return out;
-  },
-
-  explain(p, answer) {
-    if (p.difficulty === 1) {
-      const n2 = p.n * p.n;
-      return 'Simon\u2019s Favorite Factoring Trick: clear denominators \u2014 \\(' + p.n + '(a+b) = ab\\), so \\(ab - ' + p.n + 'a - ' + p.n + 'b = 0\\). ' +
+      ]; const out = []; for (const c of candidates) {if (!set.has(c)) { set.add(c); out.push(c); }  if (out.length === 3) break; } return out;},
+    explain(p, answer) { if (p.difficulty === 1) {   const n2 = p.n * p.n;  return 'Simon\u2019s Favorite Factoring Trick: clear denominators \u2014 \\(' + p.n + '(a+b) = ab\\), so \\(ab - ' + p.n + 'a - ' + p.n + 'b = 0\\). ' +
         '<br><br>Add \\(' + n2 + '\\) to both sides to complete the factorization: \\((a-' + p.n + ')(b-' + p.n + ') = ' + n2 + '\\). ' +
-        '<br><br>Using the divisor pair \\((1, ' + n2 + ')\\): \\(a = ' + p.a + '\\), \\(b = ' + p.b + '\\).';
-    }
-    if (p.difficulty === 2) {
-      return 'Multiply both sides by \\(' + p.n + 'ab\\) to clear denominators: \\(' + p.n + 'b + ' + p.n + 'a = ab\\), which is \\(' + p.n + '(a+b) = ab\\). ' +
-        '<br><br>This is the setup step before Simon\u2019s Favorite Factoring Trick can be applied \u2014 answer: \\(\\textbf{' + answer + '}\\).';
-    }
+        '<br><br>Using the divisor pair \\((1, ' + n2 + ')\\): \\(a = ' + p.a + '\\), \\(b = ' + p.b + '\\).'; }
+    if (p.difficulty === 2) { return 'Multiply both sides by \\(' + p.n + 'ab\\) to clear denominators: \\(' + p.n + 'b + ' + p.n + 'a = ab\\), which is \\(' + p.n + '(a+b) = ab\\). ' +
+        '<br><br>This is the setup step before Simon\u2019s Favorite Factoring Trick can be applied \u2014 answer: \\(\\textbf{' + answer + '}\\).'; }
     return 'Let \\(x = \\frac{a}{b}\\). Since \\(\\frac{b}{a} = \\frac{1}{x}\\), the equation becomes \\(x + \\frac{1}{x} = \\frac{' + p.p + '}{' + p.q + '}\\). ' +
       '<br><br>Clear denominators: \\(' + p.q + 'x^2 - ' + p.p + 'x + ' + p.q + ' = 0\\). ' +
       '<br><br>This factors into two reciprocal roots: \\(x = ' + p.root1 + '\\) or \\(x = ' + p.root2 + '\\). ' +
-      '<br><br>A possible value of \\(\\frac{a}{b}\\): \\(' + answer + '\\).';
-  }},
+      '<br><br>A possible value of \\(\\frac{a}{b}\\): \\(' + answer + '\\).'; }},
 
-
+arithmeticSequenceIdentity: {
+    // Level 1: direct application — a1, step, n given → a_n = a1 + (n-1)d
+    level1Pool: [{ a1: 100, step: 7, n: 10 },{ a1: 145, step: 6, n: 12 },{ a1: 150, step: 9, n: 8 },{ a1: 200, step: 11, n: 9 },
+    { a1: 85, step: 4, n: 15 }, ],
+    // Level 2: shifted anchor — a_m (not a1) given, step known → a_n = a_m + (n-m)d
+    level2Pool: [{ step: 7, m: 4, am: 79, n: 15 },{ step: 6, m: 3, am: 133, n: 12 },{ step: 9, m: 5, am: 96, n: 8 },{ step: 11, m: 6, am: 134, n: 9 },
+    { step: 4, m: 7, am: 61, n: 15 }, ],
+    // Level 3: two anchors, unknown step — must derive d = (a_n2 - a_n1)/(n2 - n1) first
+    level3Pool: [{ m1: 3, am1: 82, m2: 7, am2: 54, n: 12 },{ m1: 2, am1: 145, m2: 6, am2: 105, n: 10 },{ m1: 4, am1: 96, m2: 9, am2: 51, n: 13 },
+    { m1: 3, am1: 110, m2: 8, am2: 70, n: 11 },{ m1: 4, am1: 88, m2: 10, am2: 40, n: 14 }, ],
+    generateProblem(difficulty) { const pool = this['level' + difficulty + 'Pool']; const chosen = pool[Math.floor(Math.random() * pool.length)];
+    if (difficulty === 1) { const { a1, step, n } = chosen; return { ...chosen, difficulty, prompt: 'You are counting backward by ' + step + 's. Your 1st number is ' + a1 + '. What is your ' + n + 'th number?' };
+    } if (difficulty === 2) { const { step, m, am, n } = chosen; return { ...chosen, difficulty, prompt: 'You are counting backward by ' + step + 's. Your ' + m + 'th number is ' + am + '. What is your ' + n + 'th number?' };
+    } const { m1, am1, m2, am2, n } = chosen; return { ...chosen, difficulty, prompt: 'You are counting backward by the same number each time. Your ' + m1 + 'th number is ' + am1 + ' and your ' + m2 + 'th number is ' + am2 + '. What is your ' + n + 'th number?' }; },
+    correctAnswer(p) { if (p.difficulty === 1) return p.a1 - (p.n - 1) * p.step;
+    if (p.difficulty === 2) return p.am - (p.n - p.m) * p.step;
+    const d = (p.am2 - p.am1) / (p.m2 - p.m1); return p.am2 + (p.n - p.m2) * d; },
+    distractors(p, answer) { const set = new Set([answer]); let candidates;
+    if (p.difficulty === 1) { candidates = [
+        p.a1 - p.n * p.step,           // off-by-one: used n steps instead of (n-1)
+        p.a1 + (p.n - 1) * p.step,     // sign slip: added instead of subtracted
+        p.a1 - (p.n - 2) * p.step,     // off-by-one the other direction
+      ]; } else if (p.difficulty === 2) { candidates = [
+        p.am - (p.n - 1) * p.step,     // treated anchor as if it were a1
+        p.am - (p.m - p.n) * p.step,   // flipped the offset direction
+        p.am + (p.n - p.m) * p.step,   // sign slip on step
+      ]; } else { const dRaw = p.am2 - p.am1; const dCorrect = dRaw / (p.m2 - p.m1);
+      candidates = [ Math.round(p.am2 + (p.n - p.m2) * dRaw),               // forgot to divide by (m2 - m1)
+        Math.round(p.am1 + (p.n - p.m1) * -dCorrect),                       // sign slip on derived d
+        Math.round(p.am1 + (p.n - p.m2) * dCorrect),                        // used wrong anchor's index
+      ]; } const out = []; for (const cand of candidates) { if (Number.isFinite(cand) && !set.has(cand)) { set.add(cand); out.push(cand); }
+      if (out.length === 3) break; } return out; },
+    explain(p, answer) { if (p.difficulty === 1) { return 'Arithmetic Sequence Identity: \\(a_n = a_1 + (n-1)d\\). ' +
+        '<br><br>Here \\(a_1 = ' + p.a1 + '\\), \\(d = -' + p.step + '\\), \\(n = ' + p.n + '\\). ' +
+        '<br><br>Substitute: \\(a_{' + p.n + '} = ' + p.a1 + ' + (' + p.n + '-1)(-' + p.step + ') = ' + answer + '\\).';
+    } if (p.difficulty === 2) { return 'Arithmetic Sequence Identity, generalized to any known term: \\(a_n = a_m + (n-m)d\\). ' +
+        '<br><br>Here \\(a_m = ' + p.am + '\\) at position \\(m = ' + p.m + '\\), \\(d = -' + p.step + '\\). ' +
+        '<br><br>You don\u2019t need \\(a_1\\) at all \u2014 substitute directly: \\(a_{' + p.n + '} = ' + p.am + ' + (' + p.n + '-' + p.m + ')(-' + p.step + ') = ' + answer + '\\).';
+    } const d = (p.am2 - p.am1) / (p.m2 - p.m1);
+    return 'Arithmetic Sequence Identity \u2014 with no step given, first recover it from two known terms: \\(d = \\dfrac{a_{' + p.m2 + '} - a_{' + p.m1 + '}}{' + p.m2 + ' - ' + p.m1 + '} = \\dfrac{' + p.am2 + ' - ' + p.am1 + '}{' + (p.m2 - p.m1) + '} = ' + d + '\\). ' +
+      '<br><br>Then apply the identity from either anchor: \\(a_{' + p.n + '} = ' + p.am2 + ' + (' + p.n + '-' + p.m2 + ')(' + d + ') = ' + answer + '\\).'; }},
+  
+  modularArithmetic: {
+    // Level 1: single divisor — remaining sum divisible by k → find erased number
+    level1Pool: [{ nums: [15,16,17,18,19], divisor: 4 },{ nums: [22,23,24,25,26], divisor: 3 },{ nums: [31,32,33,34,35], divisor: 5 },
+    { nums: [40,41,42,43,44], divisor: 4 },{ nums: [8,9,10,11,12], divisor: 3 }, ],
+    // Level 2: compound divisor — remaining sum divisible by both a and b (collapse via LCM)
+    level2Pool: [{ nums: [10,12,16,22], divisors: [2,3] },{ nums: [14,18,20,26], divisors: [2,3] },{ nums: [16,22,24,28], divisors: [2,3] },
+    { nums: [8,14,20,30], divisors: [2,3] },{ nums: [10,16,22,36], divisors: [2,3] }, ],
+    // Level 3: compound remainder — remaining sum leaves the same remainder under two moduli (collapse via LCM)
+    level3Pool: [{ nums: [8,16,26,34], divisors: [4,6], remainder: 2 },{ nums: [12,20,30,38], divisors: [4,6], remainder: 2 },{ nums: [10,18,28,36], divisors: [4,6], remainder: 2 },
+    { nums: [14,22,32,40], divisors: [4,6], remainder: 2 },{ nums: [11,19,29,38], divisors: [4,6], remainder: 2 }, ],lcm(a, b) { const gcd = (x, y) => y === 0 ? x : gcd(y, x % y); return (a * b) / gcd(a, b); },
+    generateProblem(difficulty) { const pool = this['level' + difficulty + 'Pool']; const chosen = pool[Math.floor(Math.random() * pool.length)];
+    if (difficulty === 1) { const { nums, divisor } = chosen; return { ...chosen, difficulty,
+        prompt: 'Five raffle tickets are numbered ' + nums.slice(0,4).join(', ') + ', and ' + nums[4] + '. One ticket is pulled and discarded. The sum of the four remaining ticket numbers is divisible by ' + divisor + '. Which ticket was discarded?' };
+    } if (difficulty === 2) { const { nums, divisors } = chosen; return { ...chosen, difficulty,
+        prompt: 'A bakery prepares four batches of cookies containing ' + nums.slice(0,3).join(', ') + ', and ' + nums[3] + ' cookies. One batch is set aside for a special order. The sum of the cookies in the remaining three batches is divisible by both ' + divisors[0] + ' and ' + divisors[1] + '. How many cookies were in the batch that was set aside?' };
+    } const { nums, divisors, remainder } = chosen; return { ...chosen, difficulty,
+      prompt: 'A warehouse has four boxes containing ' + nums.slice(0,3).join(', ') + ', and ' + nums[3] + ' parts. One box is shipped out. When the parts in the remaining boxes are packed into groups of ' + divisors[0] + ', there are ' + remainder + ' left over, and when packed into groups of ' + divisors[1] + ', there are also ' + remainder + ' left over. How many parts were in the box that was shipped?' }; },
+    correctAnswer(p) { const total = p.nums.reduce((s,v) => s+v, 0);
+    if (p.difficulty === 1) { const L = p.divisor; const need = ((total % L) + L) % L; return p.nums.find(x => x % L === need); }
+    const L = this.lcm(p.divisors[0], p.divisors[1]); const r = p.difficulty === 3 ? p.remainder : 0;
+    const need = (((total - r) % L) + L) % L; return p.nums.find(x => x % L === need); },
+    distractors(p, answer) { return p.nums.filter(x => x !== answer); },
+    explain(p, answer) { const total = p.nums.reduce((s,v) => s+v, 0);
+    if (p.difficulty === 1) { const L = p.divisor; const need = ((total % L) + L) % L;
+      return 'Modular Sum Removal: the total is ' + total + ', and ' + total + ' mod ' + L + ' = ' + need + '. ' +
+        '<br><br>Since the remaining sum must be divisible by ' + L + ', the discarded ticket must satisfy \\(x \\equiv ' + need + ' \\pmod{' + L + '}\\). ' +
+        '<br><br>Only ' + answer + ' fits &mdash; no need to check every removal by hand.'; }
+    if (p.difficulty === 2) { const L = this.lcm(p.divisors[0], p.divisors[1]);
+      return 'Compound Modulus: divisible by both ' + p.divisors[0] + ' and ' + p.divisors[1] + ' collapses to divisible by \\(\\text{lcm}(' + p.divisors[0] + ',' + p.divisors[1] + ') = ' + L + '\\). ' +
+        '<br><br>Total is ' + total + ', and ' + total + ' mod ' + L + ' = 0, so the set-aside batch must itself satisfy \\(x \\equiv 0 \\pmod{' + L + '}\\). ' +
+        '<br><br>Only ' + answer + ' fits.'; }const L = this.lcm(p.divisors[0], p.divisors[1]);
+    return 'Compound Remainder: leaving remainder ' + p.remainder + ' under both mod ' + p.divisors[0] + ' and mod ' + p.divisors[1] + ' merges into one condition mod \\(\\text{lcm}(' + p.divisors[0] + ',' + p.divisors[1] + ') = ' + L + '\\). ' +
+      '<br><br>Total is ' + total + '; the shipped box must satisfy \\(' + total + ' - x \\equiv ' + p.remainder + ' \\pmod{' + L + '}\\). ' +
+      '<br><br>Only ' + answer + ' fits &mdash; checking each box against both moduli separately would take twice the work.'; }},
     };
 
 /* ---------- Level -> eligible propertyTypes ---------- */
 const levelMap = {
-  1: ['additionProperties', 'exponentProperties', 'logProperties', 'multiplicationProperties', 'isoscelesTriangleProperties', 'functionProperties', 'combinatoricsProperties', 'fractionProperties'],
-  2: ['additionProperties', 'exponentProperties', 'logProperties', 'multiplicationProperties', 'isoscelesTriangleProperties', 'functionProperties', 'combinatoricsProperties', 'fractionProperties'],
-  3: ['additionProperties', 'exponentProperties', 'logProperties', 'multiplicationProperties', 'isoscelesTriangleProperties', 'functionProperties', 'combinatoricsProperties', 'fractionProperties']
-
+  1: ['additionProperties', 'isoscelesTriangleProperties', 'functionProperties', 'combinatoricsProperties', 'fractionProperties', 'arithmeticSequenceIdentity', 'modularArithmetic'],
+  2: ['additionProperties', 'isoscelesTriangleProperties', 'functionProperties', 'combinatoricsProperties', 'fractionProperties', 'arithmeticSequenceIdentity', 'modularArithmetic'],
+  3: ['additionProperties', 'isoscelesTriangleProperties', 'functionProperties', 'combinatoricsProperties', 'fractionProperties', 'arithmeticSequenceIdentity', 'modularArithmetic']
 };
+
 
 const QUESTIONS_PER_LEVEL = 10;
 const LETTERS = ['A','B','C','D','E'];
+
+/* ---------- Shuffle helper ---------- */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 /* ---------- Session state ---------- */
 let currentLevel = 1;
 let session = [];
 let qIndex = 0;
+let topicOrder = [];
+let sessionLength = QUESTIONS_PER_LEVEL;
 
-function pickGenerator(level) {
+function pickGenerator(level, index) {
   const pool = levelMap[level];
-  const propertyType = pool[Math.floor(Math.random() * pool.length)];
+  let propertyType;
+  if (index < topicOrder.length) {
+    propertyType = topicOrder[index];
+  } else {
+    propertyType = pool[Math.floor(Math.random() * pool.length)];
+  }
   return generators[propertyType];}
 
-function buildQuestion(level) {
-  const generator = pickGenerator(level);
+function buildQuestion(level, index) {
+  const generator = pickGenerator(level, index);
   const problem = generator.generateProblem(level);
   const rawAnswer = generator.correctAnswer(problem);
   const answer = typeof rawAnswer === 'number' ? Math.round(rawAnswer) : rawAnswer;
@@ -687,7 +401,7 @@ function buildQuestion(level) {
 function renderQuestion() {
   const q = session[qIndex];
   document.getElementById('qNum').textContent = qIndex + 1;
-  document.getElementById('qTotal').textContent = QUESTIONS_PER_LEVEL;
+  document.getElementById('qTotal').textContent = sessionLength;
   document.getElementById('prompt').innerHTML = q.problem.prompt;
   renderMathInElement(document.getElementById('prompt'), {
     delimiters: [{ left: '\\(', right: '\\)', display: false }]
@@ -757,7 +471,9 @@ function renderQuestion() {
 function startLevel(level) {
   currentLevel = level;
   document.getElementById('levelNum').textContent = level;
-  session = [buildQuestion(level)];
+  topicOrder = shuffle(levelMap[level]);
+  sessionLength = Math.max(QUESTIONS_PER_LEVEL, topicOrder.length);
+  session = [buildQuestion(level, 0)];
   qIndex = 0;
   renderQuestion();}
 
@@ -768,8 +484,8 @@ document.getElementById('prev-btn').onclick = function() {
   renderQuestion();};
 
 document.getElementById('next-btn').onclick = function() {
-  if (qIndex === session.length - 1 && session.length < QUESTIONS_PER_LEVEL) {
-    session.push(buildQuestion(currentLevel));}
+  if (qIndex === session.length - 1 && session.length < sessionLength) {
+    session.push(buildQuestion(currentLevel, session.length));}
   if (qIndex < session.length - 1) {
     qIndex += 1;
     renderQuestion();}};
