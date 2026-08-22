@@ -11,7 +11,7 @@
 .choice-row { display:flex; align-items:center; gap:14px; padding:16px 18px; border:1px solid #dddddd; border-radius:14px; background:#ffffff; cursor:pointer; margin-bottom:10px; }
 .choice-row.selected { border:2px solid #002C64; }
 .choice-row.correct { border:2px solid #32CD32; }
-.badge { flex:0 0 auto; width:32px; height:32px; border-radius:20px; background:#002C64; color:#ffffff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:15px; }
+.badge { flex:0 0 auto; width:32px; height:32px; border-radius:12px; background:#002C64; color:#ffffff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:15px; }
 .check { margin-left:auto; width:26px; height:26px; border-radius:50%; background:#002C64; color:#ffffff; display:flex; align-items:center; justify-content:center; font-size:14px; }
 .check.correct { background:#32CD32; }
 .level-opt:hover { background:#f5f5f5; }
@@ -322,13 +322,16 @@ arithmeticSequenceIdentity: {
     // Level 3: compound remainder — remaining sum leaves the same remainder under two moduli (collapse via LCM)
     level3Pool: [{ nums: [8,16,26,34], divisors: [4,6], remainder: 2 },{ nums: [12,20,30,38], divisors: [4,6], remainder: 2 },{ nums: [10,18,28,36], divisors: [4,6], remainder: 2 },
     { nums: [14,22,32,40], divisors: [4,6], remainder: 2 },{ nums: [11,19,29,38], divisors: [4,6], remainder: 2 }, ],lcm(a, b) { const gcd = (x, y) => y === 0 ? x : gcd(y, x % y); return (a * b) / gcd(a, b); },
-    generateProblem(difficulty) { const pool = this['level' + difficulty + 'Pool']; const chosen = pool[Math.floor(Math.random() * pool.length)];
+    generateProblem(difficulty) { const pool = this['level' + difficulty + 'Pool']; const chosen = pool[Math.floor(Math.random() * pool.length)]; 
     if (difficulty === 1) { const { nums, divisor } = chosen; return { ...chosen, difficulty,
-        prompt: 'Five raffle tickets are numbered ' + nums.slice(0,4).join(', ') + ', and ' + nums[4] + '. One ticket is pulled and discarded. The sum of the four remaining ticket numbers is divisible by ' + divisor + '. Which ticket was discarded?' };
+        prompt: 'Five raffle tickets are numbered:<br><div style="text-align:center;">' + nums.slice(0,4).join(', ') + ', and ' + nums[4] + '</div>' +
+          '<br>One ticket is pulled and discarded. The sum of the four remaining ticket numbers is divisible by ' + divisor + '. Which ticket was discarded?' };
     } if (difficulty === 2) { const { nums, divisors } = chosen; return { ...chosen, difficulty,
-        prompt: 'A bakery prepares four batches of cookies containing ' + nums.slice(0,3).join(', ') + ', and ' + nums[3] + ' cookies. One batch is set aside for a special order. The sum of the cookies in the remaining three batches is divisible by both ' + divisors[0] + ' and ' + divisors[1] + '. How many cookies were in the batch that was set aside?' };
+        prompt: 'A bakery prepares four batches of cookies containing:<br><div style="text-align:center;">' + nums.slice(0,3).join(', ') + ', and ' + nums[3] + ' cookies</div>' +
+          '<br>One batch is set aside for a special order. The sum of the cookies in the remaining three batches is divisible by both ' + divisors[0] + ' and ' + divisors[1] + '. How many cookies were in the batch that was set aside?' };
     } const { nums, divisors, remainder } = chosen; return { ...chosen, difficulty,
-      prompt: 'A warehouse has four boxes containing ' + nums.slice(0,3).join(', ') + ', and ' + nums[3] + ' parts. One box is shipped out. When the parts in the remaining boxes are packed into groups of ' + divisors[0] + ', there are ' + remainder + ' left over, and when packed into groups of ' + divisors[1] + ', there are also ' + remainder + ' left over. How many parts were in the box that was shipped?' }; },
+      prompt: 'A warehouse has four boxes containing:<br><div style="text-align:center;">' + nums.slice(0,3).join(', ') + ', and ' + nums[3] + ' parts</div>' +
+        '<br>One box is shipped out. When the parts in the remaining boxes are packed into groups of ' + divisors[0] + ', there are ' + remainder + ' left over, and when packed into groups of ' + divisors[1] + ', there are also ' + remainder + ' left over. How many parts were in the box that was shipped?' }; },
     correctAnswer(p) { const total = p.nums.reduce((s,v) => s+v, 0);
     if (p.difficulty === 1) { const L = p.divisor; const need = ((total % L) + L) % L; return p.nums.find(x => x % L === need); }
     const L = this.lcm(p.divisors[0], p.divisors[1]); const r = p.difficulty === 3 ? p.remainder : 0;
